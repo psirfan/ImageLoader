@@ -1,0 +1,35 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+<title>CONTAINER LAYOUT GENERATION</title>
+
+</head>
+<body >
+<div  class="main">	
+	<h2>CONTAINER LAYOUT GENERATION</h2>
+	
+	<table width="70%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+	<tr>
+		<td>	
+			<label for="lblImportCompanies" style="align: left; width: 40%">Import Companies:</label>
+			<select  id = "importCompaniesSelect" ng-model="importCompaniesSelect"  style="align: left; width: 55%"  ng-change="filterCompany()" ng-options="c.value for c in importcompanies"></select>
+		</td>
+		<td>
+			<label for="lblExportCompanies" style="align: right; width: 40%">Export Companies:</label>
+			<select  id="exportCompaniesSelect" ng-model="exportCompaniesSelect" style="align: right; width: 55%" ng-change="filterCompany()" ng-options="c.value for c in exportcompanies"></select>		
+		</td>
+	</tr>	
+	</table>
+	<div class="dataEntryPaneGSP" align="center">
+		<h4>Planned Ship Sailing Details [{{sailingsTitle}}]</h4>			
+		<table width="100%" id="gridTableSailings">			
+		</table>			
+	</div>	
+	<div align="center" style="margin: 50px;">			
+			<button ng-click="createManifestPlan()" style="margin-left: 5px;" class="button" >{{createRemoveButtonTitle}}</button>
+			<button ng-click="showPlannedManifestSailings()" style="margin-left: 5px;" class="button" >{{showHideButtonTitle}}</button>
+	</div>	
+</div>
+</body>
+</html>
+

@@ -1,0 +1,89 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript">
+jQuery().ready(function() {    	
+    	jQuery("#gridTableId").jqGrid({    	
+    		url: 'http://localhost:8080/ReverseKDWebApp/service/getGridDataForGSP?importCompany=1234&exportCompany=1234',
+    		datatype: 'json',    	
+    		height: '300',    		    		
+    		ajaxGridOptions: { contentType: "application/json" },    		
+    		colNames:['Id Hidden', 'Vessel Code', 'Vessel Name','Depart Date','Port of Departure','Arrival Date','Port of Arrival','Shipping Line','txtImportCompany Hidden', 'txtExportCompany Hidden'],	
+    		colModel:[	 
+				{name:'id',index:'id', width:0, sorttype:"int", hidden: true},
+    		 	{name:'vesselCode',index:'vesselCode', width:80, sorttype:"string", sortorder : "desc"},		
+    		 	{name:'VesselName',index:'VesselName', width:150, sorttype:"string",  sortorder : "desc"},
+    		 	{name:'departureDate',index:'departureDate', width:80, sorttype:"string", sortorder : "desc"},
+    		 	{name:'portofDeparture',index:'portofDeparture', width:110, sorttype:"string",  sortorder : "desc"},
+    		 	{name:'arrivalDate',index:'arrivalDate', width:90, sorttype:"string", sortorder : "desc"},
+    		 	{name:'portofArrival',index:'portofArrival', width:100, sorttype:"string",  sortorder : "desc"},
+    		 	{name:'shippingLine',index:'shippingLine', width:100, sorttype:"string",  sortorder : "desc"},
+    		 	{name:'importCompany',index:'importCompany', width:0, sorttype:"string", hidden: true},
+    		 	{name:'exportCompany',index:'exportCompany', width:0, sorttype:"string", hidden: true}
+    		 ],
+    		 viewrecords: true, 
+    		 jsonReader: {
+                  repeatitems: false,
+                  root: "returnedValues",
+                  records: "returnedValues.records"
+              },
+              multiselect: true    	        
+    		});	
+    	});    
+</script>
+
+
+<title>Generating Shipping plan</title>
+
+</head>
+
+
+<body ng-controller="GeneratingShippingPlanController">
+
+
+<form name="generateShippingPlan">
+
+<div  class="main" style="text-align: center; width: 100%;" >
+	<h2>Honda of the UK Manufacturing LTD</br> Power train export</br></h2>
+	<h2>Generating Shipping Plan</h2>
+	<table width="62%" border="0" align="center" cellpadding="5" cellspacing="0" class="celdaAmbito2" style="border-width:1px 1px 1px 1px;">
+	<tr>
+		<td>	
+			<label for="lblImportCompanies" style="align: left; width: 30%">Import Companies:</label>
+			<select ng-model="importCompaniesSelect" style="align: left; width: 70%"  ng-change="filterImpCompany()"> 
+			 	<option ng:repeat="m in importcompanies.returnedValues" value="{{m.key}}" selected="selected">{{m.value}}</option>
+			</select>
+		</td>
+		<td>
+			<label for="lblExportCompanies" style="align: right; width: 30%">Export Companies:</label>
+			<select  ng-model="exportCompaniesSelect" style="align: right; width: 70%" ng-change="filterExpCompany()"> 
+			 	<option ng:repeat="m in exportcompanies.returnedValues" value="{{m.key}}"  selected="selected">{{m.value}}</option>
+			</select>		
+		</td>
+	</tr>
+	
+	</table>
+	<table width="62%" border="0" align="center" cellpadding="5" cellspacing="0" class="celdaAmbito2" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td style="align: center; width: 100%">
+				<table id="gridTableId"> 
+				</table>
+			<td>			
+		</tr>
+	</table>
+	<table width="62%" border="0" align="center" cellpadding="5" cellspacing="0" class="celdaAmbito2" style="border-width:1px 1px 1px 1px;">
+		<tr style="width: 100%">
+			<td style="width: 25%"><button  name="createpkgplan" style="width: 100%; height: 50px;">Create Packing Plan</button></td>		
+			<td style="width: 25%"><button  name="showpkgplan" style="width: 100%; height: 50px;">Show Packing Plan</button></td>
+			<td style="width: 25%"><button  name="removepkgplan" style="width: 100%; height: 50px;">Remove Packing Plan</button></td>
+			<td style="width: 25%"><button  name="hidepkgplan" style="width: 100%; height: 50px;">Hide Packing Plan</button></td>
+		</tr>
+	</table>
+</div>
+
+</form>
+  	
+</body>
+</html>
+

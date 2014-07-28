@@ -1,0 +1,265 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dto.ShippinggeneratePlan;
+import com.honda.eu.hum.reversekd.dto.UniqueTxossd1;
+  
+  
+public interface Txossd1Repository extends JpaRepository<Txossd1, Txossd1Id> 
+{
+	@Query(value = "delete from xo.Txossd1 where order_no = ?1", nativeQuery = true)
+	@Modifying
+	void deleteByOrderNumber(String Order);
+	
+	@Query( "select o from Txossd1 o where o.txossh1.txoicc1.importCompany like ?1 and o.txossh1.txoecc1.exportCompany like ?2")
+	List<Txossd1> findByCompany(String importCompany, String exportCompany);
+
+	// List only allocated orders
+	@Query( "select o from Txossd1 o where o.txossh1.txoicc1.importCompany like ?1 and o.txossh1.txoecc1.exportCompany like ?2 and o.txoesh1 != null")
+	List<Txossd1> findByCompanyAllocated(String importCompany, String exportCompany);
+	
+	// List only allocated orders
+	@Query( "select o from Txossd1 o where o.txossh1.txoicc1.importCompany like ?1 and o.txossh1.txoecc1.exportCompany like ?2 and o.txoesh1 = null")
+	List<Txossd1> findByCompanyDeallocated(String importCompany, String exportCompany);
+	
+	@Query(value ="SELECT	DISTINCT "+
+				  "			ESH1.VESSEL_CODE AS vesselCode,  "+
+				  "			VSC1.VESSEL_NAME as VesselName,  "+
+				  "			ESH1.DEPART_DATE as departureDate,  "+
+				  "			ESH1.PORT_OF_DEPARTURE as portofDeparture, "+ 
+				  "			ESH1.ARRIVAL_DATE as arrivalDate,  "+
+				  "			ESH1.PORT_OF_ARRIVAL as portofArrival, "+ 
+				  "			VSC1.SHIPPING_LINE as shippingLine,  "+
+				  "			SSD1.IMPORT_COMPANY as importCompany, "+
+				  "			SSD1.EXPORT_COMPANY as exportCompany "+
+				  "FROM		XO.TXOESH1 ESH1, "+
+				  "			XO.TXOVSC1 VSC1, "+
+				  "			XO.TXOSSD1 SSD1 "+
+				  "WHERE	(SSD1.IMPORT_COMPANY     = :importCompany OR :importCompany IS NULL) "+
+				  "AND		(SSD1.EXPORT_COMPANY     = :exportCompany OR :exportCompany IS NULL)"+
+				  "AND		SSD1.VESSEL_CODE        = ESH1.VESSEL_CODE "+
+				  "AND		SSD1.DEPART_DATE        = ESH1.DEPART_DATE "+
+				  "AND		SSD1.PORT_OF_DEPARTURE  = ESH1.PORT_OF_DEPARTURE "+
+				  "AND		SSD1.ARRIVAL_DATE       = ESH1.ARRIVAL_DATE "+
+				  "AND		SSD1.PORT_OF_ARRIVAL    = ESH1.PORT_OF_ARRIVAL "+
+				  "AND		ESH1.VESSEL_CODE        = VSC1.VESSEL_CODE "+
+				  "AND		SSD1.ALLOCATION_FLAG    = :packSchedFlag "+
+				  "AND		SSD1.PACK_SCHED_FLAG    = 'N' ",nativeQuery=true)
+	public List<ShippinggeneratePlan> gettingPlanedShipDetail(@Param("importCompany") String importCompany, @Param("exportCompany") String exportCompany,@Param("packSchedFlag") char packSchedFlag);
+	
+	
+	@Query(value ="SELECT	DISTINCT "+
+			  "			ESH1.VESSEL_CODE AS vesselCode,  "+
+			  "			VSC1.VESSEL_NAME as VesselName,  "+
+			  "			ESH1.DEPART_DATE as departureDate,  "+
+			  "			ESH1.PORT_OF_DEPARTURE as portofDeparture, "+ 
+			  "			ESH1.ARRIVAL_DATE as arrivalDate,  "+
+			  "			ESH1.PORT_OF_ARRIVAL as portofArrival, "+ 
+			  "			VSC1.SHIPPING_LINE as shippingLine,  "+
+			  "			SSD1.IMPORT_COMPANY as importCompany, "+
+			  "			SSD1.EXPORT_COMPANY as exportCompany "+
+			  "FROM		XO.TXOESH1 ESH1, "+
+			  "			XO.TXOVSC1 VSC1, "+
+			  "			XO.TXOSSD1 SSD1 "+
+			  "WHERE	SSD1.VESSEL_CODE        = ESH1.VESSEL_CODE "+
+			  "AND		SSD1.DEPART_DATE        = ESH1.DEPART_DATE "+
+			  "AND		SSD1.PORT_OF_DEPARTURE  = ESH1.PORT_OF_DEPARTURE "+
+			  "AND		SSD1.ARRIVAL_DATE       = ESH1.ARRIVAL_DATE "+
+			  "AND		SSD1.PORT_OF_ARRIVAL    = ESH1.PORT_OF_ARRIVAL "+
+			  "AND		ESH1.VESSEL_CODE        = VSC1.VESSEL_CODE "+
+			  "AND		SSD1.ALLOCATION_FLAG    = 'Y' "+
+			  "AND		SSD1.PACK_SCHED_FLAG    = :packSchedFlag ",nativeQuery=true)
+	public List<ShippinggeneratePlan> gettingPlanedShipDetailall(@Param("packSchedFlag") char packSchedFlag);
+	
+	
+
+	@Query(value = 	"SELECT COUNT(SSD1.IMPORT_COMPANY) FROM XO.TXOSSD1 SSD1 WHERE SSD1.IMPORT_COMPANY = :importCompany AND SSD1.EXPORT_COMPANY = :exportCompany",nativeQuery=true)
+	public int isExistRecord(@Param("importCompany") String importCompany, @Param("exportCompany") String exportCompany);	
+	
+	//Updateing First Part of Functional
+	@Modifying
+	@Query(value =	"update XO.TXOSSD1 TX2 "+
+				  	"SET	 (TX2.SHIP_TO_PORT_DATE,TX2.SHIP_TO_PORT_ORIG) = ( "+
+			  		"	   												 SELECT  "+               
+			  		"		   												   (select min(receipt_date) from (  "+  
+			  		"		   												   							      SELECT receipt_date, integer(ROW_NUMBER() OVER (PARTITION BY xo_order_plant ORDER BY receipt_date desc)) AS ROWNUM,  "+   
+			  		"		   												 										(SELECT INTEGER(SUBSTR(CONTROL_DATA,1,4)) Ndays  "+  
+			  		"		   												  										FROM   zz.tzzcnt1  "+  
+			  		"		   												 										WHERE  SYSTEM_NAME = 'XO'  "+  
+			  		"		   												 										AND    CONTROL_NAME  = 'CONT_DEL_OFFSET')  "+   
+			  		"		   												 								  FROM XO.TXOCAL1  "+  
+			  		"		   												 								  where xo_order_plant = :humPlant  "+  
+			  		"		   												 								  AND   receipt_date <  dataQuery.Step2  "+  
+			  		"		   												 								 ) insidequery  "+  
+			  		"		   																						 where insidequery.ROWNUM  <= insidequery.ndays  "+  
+			  		"		   												 ) A,  "+  
+			  		"		   												 (select min(receipt_date) from (  "+  
+			  		"		   												                             SELECT receipt_date, integer(ROW_NUMBER() OVER (PARTITION BY xo_order_plant ORDER BY receipt_date desc)) AS ROWNUM,  "+   
+			  		"		   												                                   (SELECT INTEGER(SUBSTR(CONTROL_DATA,1,4)) Ndays  "+  
+			  		"		   												                                    FROM   zz.tzzcnt1  "+  
+			  		"		   												                                    WHERE  SYSTEM_NAME = 'XO'  "+  
+			  		"		   												                                    AND    CONTROL_NAME  = 'CONT_DEL_OFFSET')  "+   
+			  		"		   												                             FROM XO.TXOCAL1  "+  
+			  		"		   												                             where xo_order_plant = :humPlant  "+  
+			  		"		   												                             AND   receipt_date <  dataQuery.Step2  "+  
+			  		"		   												                           ) insidequery  "+  
+			  		"		   												 where insidequery.ROWNUM  <= insidequery.ndays  "+  
+			  		"		   												 ) B  "+   
+			  		"		   												 from    "+
+			  		"		   												 (SELECT  DEPART_DATE, "+ 
+			  		"													                RTD, "+
+			  		"													                (RTD - (msxRTD.nDays) DAYS)  AS Step2, "+																	                
+			  		"													                msxRTD.nDays, "+
+			  		"													                order_no, "+
+			  		"													                item_no "+	                
+			  		"													        FROM( "+
+			  		"													               SELECT  MAX(DAYS(SSD1.RTD) - DAYS(SSD1.DEPART_DATE)) AS nDays "+
+			  		"													                FROM    XO.TXOSSD1 SSD1 "+
+			  		"													                WHERE   SSD1.IMPORT_COMPANY     = :importCompany "+ 
+			  		"														            AND     SSD1.EXPORT_COMPANY 	= :exportCompany "+ 
+			  		"													                AND     SSD1.VESSEL_CODE        = :vesselCode "+
+			  		"													                AND     SSD1.DEPART_DATE        = :departDate "+
+			  		"													                AND     SSD1.PORT_OF_DEPARTURE  = :portOfDeparture "+
+			  		"													                AND     SSD1.ARRIVAL_DATE       = :arrivalDate "+
+			  		"													                AND     SSD1.PORT_OF_ARRIVAL    = :portOfArrival "+
+			  		"													                AND     RTD > DEPART_DATE "+ 
+			  		"													                AND     ALLOCATION_FLAG = 'Y' "+
+			  		"													                AND     PACK_SCHED_FLAG = 'N' "+
+			  		"													               ) msxRTD, "+
+			  		"															       XO.TXOSSD1 "+
+			  		"															 WHERE   IMPORT_COMPANY     = :importCompany "+ 
+			  		"															 AND     EXPORT_COMPANY     = :exportCompany  "+
+			  		"															 AND     VESSEL_CODE        = :vesselCode "+
+			  		"															 AND     DEPART_DATE        = :departDate "+ 
+			  		"															 AND     PORT_OF_DEPARTURE  = :portOfDeparture "+
+			  		"															 AND     ARRIVAL_DATE       = :arrivalDate "+
+			  		"															 AND     PORT_OF_ARRIVAL    = :portOfArrival "+
+			  		"															 AND     RTD > DEPART_DATE "+ 
+			  		"															 AND     ALLOCATION_FLAG = 'Y' "+
+			  		"															 AND     PACK_SCHED_FLAG = 'N' "+																			        
+			  		"																) dataQuery "+
+			  		"														 WHERE   TX2.IMPORT_COMPANY = :importCompany "+ 
+			  		"														 AND     TX2.EXPORT_COMPANY = :exportCompany "+ 
+			  		"														 AND     TX2.ORDER_NO       = dataQuery.ORDER_NO "+
+			  		"														 AND     TX2.ITEM_NO        = dataQuery.ITEM_NO )",nativeQuery=true)	
+	public void processDataGSP(@Param("importCompany") String importCompany,
+							   @Param("exportCompany") String exportCompany,
+							   @Param("vesselCode") String vesselCode,
+							   @Param("departDate") String departDate,
+							   @Param("portOfDeparture") String portOfDeparture,
+							   @Param("arrivalDate") String arrivalDate,
+							   @Param("portOfArrival") String portOfArrival,
+							   @Param("humPlant") char humPlant
+							  );
+
+	@Query(value ="SELECT	* "+
+			  	  "FROM		XO.TXOSSD1 SSD1  "+
+			  	  "WHERE	SSD1.IMPORT_COMPANY     = :importCompany "+ 
+			  	  "AND		SSD1.EXPORT_COMPANY     = :exportCompany "+ 
+			  	  "AND		SSD1.VESSEL_CODE        = :vesselCode "+
+			  	  "AND		SSD1.DEPART_DATE        = :departDate "+
+			  	  "AND		SSD1.PORT_OF_DEPARTURE  = :portOfDeparture "+
+			  	  "AND		SSD1.ARRIVAL_DATE       = :arrivalDate "+
+			  	  "AND		SSD1.PORT_OF_ARRIVAL    = :portofArrival " +
+			  	  "AND      SSD1.ALLOCATION_FLAG = 'Y' "+
+			  	  "AND      SSD1.PACK_SCHED_FLAG = 'N' "+	
+			  	  "order by SSD1.part_number, SSD1.part_colour, SSD1.ship_to_port_date, SSD1.order_no,SSD1.item_no ",nativeQuery=true)
+	public List<Txossd1> findpartnumbers(@Param("importCompany") String importCompany,
+			   					@Param("exportCompany") String exportCompany,
+			   					@Param("vesselCode") String vesselCode,
+			   					@Param("departDate") String departDate,
+			   					@Param("portOfDeparture") String portOfDeparture,
+			   					@Param("arrivalDate") String arrivalDate,
+			   					@Param("portofArrival") String portofArrival);
+	
+	@Query(value ="SELECT DISTINCT SSD1.order_no AS orderNo, SSD1.ITEM_NO AS itemNo "+
+		  	  	  "FROM	  XO.TXOSSD1 SSD1  "+
+		  	  	  "WHERE  SSD1.IMPORT_COMPANY     = :importCompany "+ 
+		  	  	  "AND	  SD1.EXPORT_COMPANY      = :exportCompany "+ 
+		  	  	  "AND	  SSD1.VESSEL_CODE        = :vesselCode "+
+		  	  	  "AND	  SSD1.DEPART_DATE        = :departDate "+
+		  	  	  "AND	  SSD1.PORT_OF_DEPARTURE  = :portOfDeparture "+
+		  	  	  "AND	  SSD1.ARRIVAL_DATE       = :arrivalDate "+
+		  	  	  "AND	  SSD1.PORT_OF_ARRIVAL    = :portofArrival " +
+		  	  	  "AND    SSD1.ALLOCATION_FLAG = 'Y' "+
+		  	  	  "AND    SSD1PACK_SCHED_FLAG = 'N' "+
+		  	  	  "order by SSD1.part_number, SSD1.part_colour, SSD1.ship_to_port_date, SSD1.order_no,SSD1.item_no ",nativeQuery=true)
+	public List<UniqueTxossd1> findUniqueOrder(@Param("importCompany") String importCompany,
+		   					@Param("exportCompany") String exportCompany,
+		   					@Param("vesselCode") String vesselCode,
+		   					@Param("departDate") String departDate,
+		   					@Param("portOfDeparture") String portOfDeparture,
+		   					@Param("arrivalDate") String arrivalDate,
+		   					@Param("portofArrival") String portofArrival);
+
+	@Query(value =	"UPDATE  XO.TXOSSD1 ssdi "+
+				  	"SET     ssdi.ship_no = :shipNo "+
+					"WHERE   ssdi.IMPORT_COMPANY     = :importCompany "+ 
+					"AND     ssdi.EXPORT_COMPANY     = :exportCompany  "+
+					"AND     ssdi.VESSEL_CODE        = :vesselCode "+
+					"AND     ssdi.DEPART_DATE        = :departDate "+
+					"AND     ssdi.PORT_OF_DEPARTURE  = :portOfDeparture "+
+					"AND     ssdi.ARRIVAL_DATE       = :arrivalDate "+
+					"AND     ssdi.PORT_OF_ARRIVAL    = :portofArrival "+
+					"AND     ssdi.order_no           = :orderNo "+
+					"AND     ssdi.ITEM_NO            = :itemNo )" ,nativeQuery=true)
+	public void updateShipNo(	@Param("importCompany") String importCompany,
+								@Param("exportCompany") String exportCompany,
+								@Param("vesselCode") String vesselCode,
+								@Param("departDate") String departDate,
+								@Param("portOfDeparture") String portOfDeparture,
+								@Param("arrivalDate") String arrivalDate,
+								@Param("portofArrival") String portofArrival,
+								@Param("orderNo") String orderNo,								
+								@Param("shipNo") String shipNo,
+								@Param("itemNo") int itemNo);
+	
+	@Query(value =	"DELETE FROM XO.TXOSSD1 ssdi "+	
+		  			"WHERE   ssdi.IMPORT_COMPANY     = :importCompany "+ 
+		  			"AND     ssdi.EXPORT_COMPANY     = :exportCompany  "+
+		  			"AND     ssdi.VESSEL_CODE        = :vesselCode "+
+		  			"AND     ssdi.DEPART_DATE        = :departDate "+
+		  			"AND     ssdi.PORT_OF_DEPARTURE  = :portOfDeparture "+
+		  			"AND     ssdi.ARRIVAL_DATE       = :arrivalDate "+
+		  			"AND     ssdi.PORT_OF_ARRIVAL    = :portOfArrival " +
+		  			"AND     INTEGER(ssdi.ship_no)   > 0 ",
+		  	nativeQuery=true)
+	public void removeTxossd1Rows(	@Param("importCompany") String importCompany,
+			   						@Param("exportCompany") String exportCompany,
+			   						@Param("vesselCode") String vesselCode,
+			   						@Param("departDate") String departDate,
+			   						@Param("portOfDeparture") String portOfDeparture,
+			   						@Param("arrivalDate") String arrivalDate,
+			   						@Param("portOfArrival") String portOfArrival 
+			   					);
+	
+	@Query(value =	"update XO.TXOSSD1 ssdi "+	
+					"SET    ssdi.pack_sched_flag 	= 'N', "+
+					"    	ssdi.ship_to_port_date	= null, "+
+					"    	ssdi.ship_to_port_orig	= null, "+
+					"    	ssdi.ship_qty			= ssdi.order_qty "+  			
+					"WHERE  ssdi.IMPORT_COMPANY     = :importCompany "+ 
+					"AND    ssdi.EXPORT_COMPANY     = :exportCompany  "+
+					"AND    ssdi.VESSEL_CODE        = :vesselCode "+
+					"AND    ssdi.DEPART_DATE        = :departDate "+
+					"AND    ssdi.PORT_OF_DEPARTURE  = :portOfDeparture "+
+					"AND    ssdi.ARRIVAL_DATE       = :arrivalDate "+
+					"AND    ssdi.PORT_OF_ARRIVAL    = :portOfArrival ",					
+  	nativeQuery=true)
+	public void updatingTxossd1(	@Param("importCompany") String importCompany,
+	   								@Param("exportCompany") String exportCompany,
+	   								@Param("vesselCode") String vesselCode,
+	   								@Param("departDate") String departDate,
+	   								@Param("portOfDeparture") String portOfDeparture,
+	   								@Param("arrivalDate") String arrivalDate,
+	   								@Param("portOfArrival") String portOfArrival 
+	   					);
+}

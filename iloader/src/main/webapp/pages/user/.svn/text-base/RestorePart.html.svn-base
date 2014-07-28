@@ -1,0 +1,40 @@
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"type="text/css">
+
+	<div class="main" align="center" ng-controller="RestorePartController" >
+		
+		<h2>Restore Part <font color="blue">[ {{partNumber}} ] </font></h2>
+		
+		
+		<table id="partHistoryGrid"   />
+
+		<div id="buttonsDivId" style="margin: 20px;">
+
+			<a href="#PartMaintenance">
+			<button class="button" id="restorePartBtnId" style="margin-left: 5px;" >
+				View Parts
+			</button>
+			</a>
+
+		
+			<button class="button" ng-click="restorePart()" id="restorePartBtnId" style="margin-left: 5px;" >
+				Restore Selected Version
+			</button>
+			
+		</div>
+	
+	
+		<div id="partRestoreDialog" title="Message">
+			<p>
+				<span id="dialog-restore-text"> </span>			
+			</p>
+		</div>	
+	
+	
+		
+	</div>
+	
+	
+		

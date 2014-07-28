@@ -1,0 +1,42 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet" type="text/css">
+<div class="main">
+		<h2>MANIFEST MAINTENANCE (CHANGE VESSEL DETAILS)</h2>
+		<table width="70%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+			<tr>
+				<td>	
+					<label for="lblImportCompanies" style="align: left; width: 40%">Import Companies:</label>
+					<select id = "importCompaniesSelect" ng-model="importCompaniesSelect" style="align: left; width: 55%"   ng-change="filterCompany()"  ng-options="c.value for c in importcompanies"></select>
+				</td>
+				<td>
+					<label for="lblExportCompanies" style="align: right; width: 40%">Export Companies:</label>
+					<select  id="exportCompaniesSelect" ng-model="exportCompaniesSelect" style="align: right; width: 55%"  ng-change="filterCompany()" ng-options="c.value for c in exportcompanies"></select>	
+				</td>
+			</tr>	
+		</table>
+		<div class="dataEntryPaneVessels" align="center">
+			<h4>Vessel Details</h4>			
+			<table width="100%" id="gridTableVessels">			
+			</table>			
+		</div>
+		<br>
+		<div class="dataEntryPaneVessels"  align="center">
+			<h4>Ship Sailing Details</h4>			
+			<table width="100%" id="gridTableSailings">			
+			</table>			
+		</div>
+			<div align="center" style="margin: 5px;">						
+				  	<button ng-click="swapSailingData()" style="margin-left: 5px;" class="button" >Swap Vessel</button>				  	
+			</div>
+</div>
+<div id="rowSelect" title="Manifest Maintenance">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Please select minimum one row from each data pane [vessel details/ship sailing details]</p>		
+</div>
+<div id="serverMessage" title="Manifest Maintenance">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Manifest plan created successfully</p>		
+</div>
+<div id="serverMessageConfirm" title="Manifest Maintenance">
+<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span></p>
+</div>
+

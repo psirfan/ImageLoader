@@ -1,0 +1,25 @@
+package com.honda.eu.hum.reversekd.service;
+
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+public class FileUploadForm {
+
+    private CommonsMultipartFile [] files;
+    boolean replace;
+
+    public CommonsMultipartFile[] getFiles() {
+        return files;
+    }
+
+    public void setFiles( CommonsMultipartFile[] files ) {
+        this.files = files;
+    }
+
+	public boolean isReplace() {
+		return replace;
+	}
+
+	public void setReplace(boolean replace) {
+		this.replace = replace;
+	}
+}

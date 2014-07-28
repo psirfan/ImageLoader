@@ -1,0 +1,114 @@
+package com.honda.eu.hum.reversekd.dto;
+
+import java.util.Date;
+
+public class ShippingScheduleOrderDetail {
+	
+	String orderNo;
+	int itemNo;
+	String shipNo;
+	String partNo;
+	int Qty;
+	Date RTA;
+	Date RTD;
+	String vesselCode;
+	Date ETA;
+	String portOfArrival;
+	String portOfDeparture;
+	String exportCompany;
+	String importCompany;
+	String PCNO;
+	Date ETD;
+	
+	public String getOrderNo() {
+		return orderNo;
+	}
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
+	}
+	public int getItemNo() {
+		return itemNo;
+	}
+	public void setItemNo(int i) {
+		this.itemNo = i;
+	}
+	public String getShipNo() {
+		return shipNo;
+	}
+	public void setShipNo(String shipNo) {
+		this.shipNo = shipNo;
+	}
+	public String getPartNo() {
+		return partNo;
+	}
+	public void setPartNo(String partNo) {
+		this.partNo = partNo;
+	}
+	public int getQty() {
+		return Qty;
+	}
+	public void setQty(int qty) {
+		Qty = qty;
+	}
+	public Date getRTA() {
+		return RTA;
+	}
+	public void setRTA(Date rTA) {
+		RTA = rTA;
+	}
+	public Date getRTD() {
+		return RTD;
+	}
+	public void setRTD(Date rTD) {
+		RTD = rTD;
+	}
+	public String getVesselCode() {
+		return vesselCode;
+	}
+	public void setVesselCode(String vesselCode) {
+		this.vesselCode = vesselCode;
+	}
+	public Date getETA() {
+		return ETA;
+	}
+	public void setETA(Date eTA) {
+		ETA = eTA;
+	}
+	public String getPortOfArrival() {
+		return portOfArrival;
+	}
+	public void setPortOfArrival(String portOfArrival) {
+		this.portOfArrival = portOfArrival;
+	}
+	public String getExportCompany() {
+		return exportCompany;
+	}
+	public void setExportCompany(String exportCompany) {
+		this.exportCompany = exportCompany;
+	}
+	public String getImportCompany() {
+		return importCompany;
+	}
+	public void setImportCompany(String importCompany) {
+		this.importCompany = importCompany;
+	}
+	public String getPortOfDeparture() {
+		return portOfDeparture;
+	}
+	public void setPortOfDeparture(String portOfDeparture) {
+		this.portOfDeparture = portOfDeparture;
+	}
+	public String getPCNO() {
+		return PCNO;
+	}
+	public void setPCNO(String pCNO) {
+		PCNO = pCNO;
+	}
+	public Date getETD() {
+		return ETD;
+	}
+	public void setETD(Date eTD) {
+		ETD = eTD;
+	}
+
+}

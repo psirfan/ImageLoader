@@ -1,0 +1,860 @@
+package com.honda.eu.hum.reversekd.bo;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dao.Txoecc1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoepn1;
+import com.honda.eu.hum.reversekd.dao.Txoepn1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoesh1;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Id;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoest1;
+import com.honda.eu.hum.reversekd.dao.Txoest1Id;
+import com.honda.eu.hum.reversekd.dao.Txoest1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoicc1;
+import com.honda.eu.hum.reversekd.dao.Txoicc1Repository;
+import com.honda.eu.hum.reversekd.dao.Txossd1;
+import com.honda.eu.hum.reversekd.dao.Txossd1Id;
+import com.honda.eu.hum.reversekd.dao.Txossd1Repository;
+import com.honda.eu.hum.reversekd.dao.Txossh1;
+import com.honda.eu.hum.reversekd.dao.Txossh1Id;
+import com.honda.eu.hum.reversekd.dao.Txossh1Repository;
+import com.honda.eu.hum.reversekd.dto.ShippingScheduleOrderDetail;
+import com.honda.eu.hum.reversekd.util.Field;
+import com.honda.eu.hum.reversekd.util.Field.Format;
+import com.honda.eu.hum.reversekd.util.Record;
+import com.honda.eu.hum.reversekd.util.Record.Formats;
+
+@Controller
+@EnableTransactionManagement
+public class ShippingSchedule {
+
+	/* Schedule file records */
+
+	List messages = null;
+	static Logger log = Logger.getRootLogger();
+
+	@Resource
+	private Txoecc1Repository txoecc1Repository;
+	@Resource
+	private Txoicc1Repository txoicc1Repository;
+	@Resource
+	private Txoepn1Repository txoepn1Repository;
+	@Resource
+	private Txossh1Repository txossh1Repository;
+	@Resource
+	private Txossd1Repository txossd1Repository;
+	@Resource
+	private Txoest1Repository txoest1Repository;
+	@Resource
+	private Txoesh1Repository txoesh1Repository;
+
+	/*
+	 * Allocate orders to a sailing
+	 */
+
+	public boolean allocateOrders(Txoesh1Id sailingKey, Txossd1Id[] txossd1Ids, String purchaseOrder) {
+		try {
+			Txossd1 order;
+			Txoesh1 sailing;
+
+			sailing = txoesh1Repository.findOne(sailingKey);
+			if (sailing == null) {
+				log.error("Error allocating order - unable to locate sailing "
+						+ sailingKey);
+				return false;
+			}
+
+			for (Txossd1Id orderKey : txossd1Ids) {
+				order = txossd1Repository.findOne(orderKey);
+				if (order == null) {
+					log.error("Error allocating order - unable to locate order detail "
+							+ orderKey);
+					return false;
+				}
+
+				if (order.getTxoesh1() != null) {
+					// log.error("Sailing already allocated to order detail "+orderKey);
+					// return false;
+				}
+				order.setTxoesh1(sailing);
+				order.setPcNo(purchaseOrder);
+				txossd1Repository.save(order);
+			}
+
+			return true;
+		} catch (Exception ex) {
+			log.fatal(
+					"Program error - " + ex.getClass().getName() + " "
+							+ ex.getMessage(), ex);
+			return false;
+		}
+	}
+
+	/*
+	 * Allocate orders to a sailing
+	 */
+
+	public boolean deallocateOrders(Txoesh1Id sailingKey, Txossd1Id[] txossd1Ids) {
+		try {
+			Txossd1 order;
+			Txoesh1 sailing;
+
+			for (Txossd1Id orderKey : txossd1Ids) {
+				order = txossd1Repository.findOne(orderKey);
+				if (order == null) {
+					log.error("Error allocating order - unable to locate order detail "
+							+ orderKey);
+					return false;
+				}
+
+				order.setTxoesh1(null);
+				txossd1Repository.save(order);
+			}
+
+			return true;
+		} catch (Exception ex) {
+			log.fatal(
+					"Program error - " + ex.getClass().getName() + " "
+							+ ex.getMessage(), ex);
+			return false;
+		}
+	}
+
+	public synchronized boolean loadScheduleFile(MultipartFile file,
+			boolean replaceOrder) {
+		String line = null;
+		try {
+			String type;
+			String fileId;
+			boolean gotHeader = false;
+			boolean gotTrailer = false;
+			int records = 0;
+			int recordsInCurrentOrder = 0;
+			String currentOrderNumber = null;
+			String currentExporterCompany = null;
+			String currentImporterCompany = null;
+			Record rec00 = new Record();
+			Record rec10 = new Record();
+			Record rec20 = new Record();
+			Record rec99 = new Record();
+
+			initRecords(rec00, rec10, rec20, rec99);
+			messages = new ArrayList();
+			HashMap orders = new HashMap<String, String>();
+
+			// Now read file and load records
+			InputStream is = file.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					file.getInputStream()));
+
+			while ((line = br.readLine()) != null) {
+				records++;
+				fileId = line.substring(0, 2);
+				type = line.substring(3, 5);
+
+				if (!fileId.equals("B3")) {
+					messages.add(new String("Invalid FileID - " + line));
+					return false;
+				}
+
+				if (!type.equals("00") && !type.equals("10")
+						&& !type.equals("20") && !type.equals("99")) {
+					messages.add(new String("Invalid record type - " + line));
+					return false;
+				}
+
+				if (type.equals("00")) {
+					gotHeader = true;
+					// Check if this is the start of the file ( Record == 0 ) if
+					// not then data is in the body of the file
+					if (records != 1) {
+						messages.add(new String(
+								"Record processing error - file header record in body of file - "
+										+ line));
+						return false;
+					}
+				}
+				// Add a Shipping schedule Header row
+				else if (type.equals("10")) {
+					if (!gotHeader) {
+						messages.add(new String(
+								"Record processing error - file header missing - "
+										+ line));
+						return false;
+					}
+
+					if (gotTrailer) {
+						messages.add(new String(
+								"Record processing error - trailer found before end of file - "
+										+ line));
+						return false;
+					}
+
+					// Validate
+					// List<Txoecc1> newTxoecc1t =
+					// txoecc1Repository.findByCompanyName("1234");
+					// System.out.println(" "+newTxoecc1t);
+					// newTxoecc1t =
+					// txoecc1Repository.findByCompanyNameSQL("1234");
+					// System.out.println(" "+newTxoecc1t);
+
+					// Check if the last order had one or greater detail records
+					// This applies to the second header only
+
+					if (records > 2 && recordsInCurrentOrder == 0) {
+						messages.add(new String(
+								"Record processing error - previous order has no detail records - "
+										+ line));
+						return false;
+					}
+
+					if (!rec10.setRecord(line)) {
+						messages.add(new String("Record processing error - "
+								+ line));
+						return false;
+					}
+
+					// Validate Exporter
+					Field f1 = rec10.getField("ExporterCompany");
+					String exporterCompany = (String) f1.getValue();
+					Txoecc1 newTxoecc1 = txoecc1Repository
+							.findOne(exporterCompany);
+					if (newTxoecc1 == null) {
+						messages.add(new String("Invalid exporter - " + line));
+						return false;
+					}
+
+					// Validate Importer
+					Field f2 = rec10.getField("ImporterCompany");
+					String importerCompany = (String) f2.getValue();
+					Txoicc1 newTxoicc1 = txoicc1Repository
+							.findOne(importerCompany);
+					if (newTxoicc1 == null) {
+						messages.add(new String("Invalid importer - " + line));
+						return false;
+					}
+
+					// Validate order
+					Field f3 = rec10.getField("OrderNumber");
+					String orderNumber = (String) f3.getValue();
+
+					// Create row for query and following insert
+					Txossh1Id id = new Txossh1Id();
+					id.setOrderNo(orderNumber);
+					id.setExportCompany(exporterCompany);
+					id.setImportCompany(importerCompany);
+
+					Txossh1 newTxossh1 = txossh1Repository.findOne(id);
+					if (newTxossh1 != null && !replaceOrder) {
+						messages.add(new String("Order already exists - "
+								+ line));
+						return false;
+					}
+
+					// If we do not have existing data then generate object for
+					// insert to happen
+					if (newTxossh1 == null) {
+						newTxossh1 = new Txossh1();
+						newTxossh1.setId(id);
+					} else {
+						// We have an order already - delete the detail data
+						Txossd1 newTxossd1 = new Txossd1();
+						txossd1Repository.deleteByOrderNumber(orderNumber);
+					}
+
+					// Plug in additional values for inset
+					Field f4 = rec10.getField("OrderDate");
+					String orderDate = (String) f4.getValue();
+					Date orderDateValue = processDate(orderDate);
+					newTxossh1.setOrderDate(orderDateValue);
+
+					Field f5 = rec10.getField("PPOModelPlantCode");
+					String plantCode = (String) f5.getValue();
+					newTxossh1.setPlantCode(plantCode.charAt(0));
+
+					Field f6 = rec10.getField("YearCode");
+					String modelYear = (String) f6.getValue();
+					newTxossh1.setModelYear(modelYear.charAt(0));
+
+					Field f7 = rec10.getField("RequiredTransportation");
+					String requiredTransportation = (String) f7.getValue();
+					newTxossh1.setReqdTransport(requiredTransportation);
+
+					newTxossh1.setTstamp(new Date());
+					newTxossh1.setUserid("XO");
+
+					orders.put(orderNumber, "?");
+					recordsInCurrentOrder = 0;
+					currentOrderNumber = orderNumber;
+					currentExporterCompany = exporterCompany;
+					currentImporterCompany = importerCompany;
+					txossh1Repository.save(newTxossh1);
+					messages.add(new String("Order added - " + orderNumber));
+				} else if (type.equals("20")) {
+					recordsInCurrentOrder++;
+
+					if (!gotHeader) {
+						messages.add(new String(
+								"Record processing error - file header missing - "
+										+ line));
+						return false;
+					}
+
+					if (gotTrailer) {
+						messages.add(new String(
+								"Record processing error - trailer found before end of file - "
+										+ line));
+						return false;
+					}
+
+					if (!rec20.setRecord(line)) {
+						messages.add(new String("Record processing error - "
+								+ line));
+						return false;
+					}
+
+					// Validate Order
+					Field f1 = rec20.getField("OrderNumber");
+					String orderNumber = (String) f1.getValue();
+					if (!orderNumber.equals(currentOrderNumber)) {
+						messages.add(new String(
+								"Record processing error - order detail ( Order Number ) does not match previous header - "
+										+ line));
+						return false;
+					}
+
+					// Validate Exporter
+					f1 = rec20.getField("ExporterCompany");
+					String exporterCompany = (String) f1.getValue();
+					if (!exporterCompany.equals(currentExporterCompany)) {
+						messages.add(new String(
+								"Record processing error - order detail ( Exporter Company ) does not match previous header - "
+										+ line));
+						return false;
+					}
+
+					// Validate Importer
+					f1 = rec20.getField("ImporterCompany");
+					String importerCompany = (String) f1.getValue();
+					if (!importerCompany.equals(currentImporterCompany)) {
+						messages.add(new String(
+								"Record processing error - order detail ( Importer Company ) does not match previous header - "
+										+ line));
+						return false;
+					}
+
+					// Add detail to table key
+
+					Txossd1 newTxossd1 = new Txossd1();
+					Txossd1Id newTxossd1Id = new Txossd1Id();
+					Txoesh1 newtxoesh1 = new Txoesh1();
+					newTxossd1.setTxoesh1(newtxoesh1);
+					Txoesh1Id newtxoesh1Id = new Txoesh1Id();
+					newtxoesh1.setId(newtxoesh1Id);
+
+					newTxossd1.setId(newTxossd1Id);
+					newTxossd1Id.setOrderNo(orderNumber);
+					newTxossd1Id.setExportCompany(exporterCompany);
+					newTxossd1Id.setImportCompany(importerCompany);
+
+					f1 = rec20.getField("ItemNumber");
+					String itemNumber = (String) f1.getValue();
+					int itemNumberInt = Integer.parseInt(itemNumber);
+					newTxossd1Id.setItemNo(itemNumberInt);
+
+					String shipNumber = "";
+					newTxossd1Id.setShipNo(shipNumber);
+
+					// Add detail to remaining rows
+
+					newTxossd1.setPcNo(null);
+
+					f1 = rec20.getField("PartNumber");
+					String partNumber = (String) f1.getValue();
+					newTxossd1.setPartNumber(partNumber);
+
+					Txoepn1 newTxoepn1 = txoepn1Repository.findOne(partNumber);
+					if (newTxoepn1 == null) {
+						messages.add(new String("Invalid part number - " + line));
+						return false;
+					}
+
+					f1 = rec20.getField("PartColour");
+					String partColour = (String) f1.getValue();
+					newTxossd1.setPartColour(partColour);
+
+					f1 = rec20.getField("OrderQuantity");
+					String orderQuantity = (String) f1.getValue();
+					itemNumberInt = Integer.parseInt(orderQuantity);
+					newTxossd1.setOrderQty(itemNumberInt);
+
+					newTxossd1.setShipOrAir('S');
+
+					newTxossd1.setShipperLineCd(null);
+
+					newTxossd1.setShipToPortLtst(null);
+
+					newTxossd1.setShipToPortDate(null);
+
+					newTxossd1.setShipToPortOrig(null);
+
+					newtxoesh1Id.setVesselCode(null);
+
+					newtxoesh1Id.setDepartDate(null);
+
+					newtxoesh1Id.setPortOfDeparture(null);
+
+					newtxoesh1Id.setArrivalDate(null);
+
+					newtxoesh1Id.setPortOfArrival(null);
+
+					f1 = rec20.getField("RTA");
+					String rta = (String) f1.getValue();
+
+					Date rtaDate = processDate(rta);
+					newTxossd1.setRta(rtaDate);
+
+					// f1 = rec20.getField("RTD");
+					// String rtd = (String) f1.getValue();
+					// Date rtdDate = processDate(rtd);
+
+					// Date calculation for RTD
+					Date rtdDate = processDate(rta);
+					Txoest1Id newTxoest1Id = new Txoest1Id();
+					newTxoest1Id.setImportCompany(importerCompany);
+					// newTxoest1Id.setEfectiveDate(efectiveDate);
+					// Txoest1 newTxoest1 =
+					// txoest1Repository.findByEffective(importerCompany,rtdDate.getTime());
+					Txoest1 newTxoest1 = txoest1Repository.findByEffective(
+							importerCompany,
+							new java.sql.Date(rtdDate.getTime()));
+					if (newTxoest1 == null) {
+						messages.add(new String("Invalid import company - "
+								+ line));
+						return false;
+					}
+
+					rtdDate = new Date(
+							rtdDate.getTime()
+									+ (newTxoest1.getShippingTimeDays() * 24 * 3600 * 1000));
+
+					newTxossd1.setRtd(rtdDate);
+
+					newTxossd1.setAllocationFlag('N');
+
+					newTxossd1.setPackSchedFlag('N');
+
+					newTxossd1.setShipPlanFlag('N');
+
+					newTxossd1.setTstamp(new Date());
+
+					newTxossd1.setUserid("XO");
+
+					txossd1Repository.save(newTxossd1);
+					messages.add(new String("Order item added added - "
+							+ orderNumber + " " + partNumber + " "
+							+ orderQuantity));
+				} else if (type.equals("99")) {
+					gotTrailer = true;
+					if (!rec99.setRecord(line)) {
+						messages.add(new String("Record processing error - "
+								+ line));
+						return false;
+					}
+
+					Field f1 = rec99.getField("TransmitRecords");
+					String recordNumber = (String) f1.getValue();
+					int count = Integer.parseInt(recordNumber);
+
+					if (count != records) {
+						messages.add(new String(
+								"Record processing error - record count not valid in trailer record - "
+										+ line));
+						return false;
+					}
+
+				} else {
+					messages.add(new String(
+							"Record processing error - unrecognised record "
+									+ line));
+					return false;
+				}
+
+				/* Validate data in the database */
+				// Txoecc1 txoecc1 = new Txoecc1("1234", "1234567899", 'A',
+				// "userid", new Date());
+				// Txoecc1 newTxoecc1 = txoecc1Repository.findOne();
+
+			}
+
+			if (!gotHeader) {
+				messages.add(new String(
+						"Record processing error - missing header - empty file "));
+				return false;
+			}
+
+			if (!gotTrailer) {
+				messages.add(new String(
+						"Record processing error - missing trailer"));
+				return false;
+			}
+
+			messages.add(new String("File processed successfully"));
+			return true;
+		} catch (java.lang.NumberFormatException ex) {
+			messages.add(new String("Program error - input data malformed - "
+					+ ex.getClass().getName() + " " + ex.getMessage()));
+			messages.add(new String("                input line - " + line));
+
+			System.out.println("Exception " + ex.getClass().getName() + " "
+					+ ex.getMessage());
+			ex.printStackTrace();
+			return false;
+		}
+
+		catch (Exception ex) {
+			messages.add(new String("Program error - "
+					+ ex.getClass().getName() + " " + ex.getMessage()));
+			System.out.println("Exception " + ex.getClass().getName() + " "
+					+ ex.getMessage());
+			ex.printStackTrace();
+			return false;
+		}
+
+	}
+
+	@Transactional
+	public List<ShippingScheduleOrderDetail> getOrderDetail(String importCompany, String exportCompany, String showAllocated, String showUnallocated) {
+		String line = null;
+		List<ShippingScheduleOrderDetail> ret = new ArrayList<ShippingScheduleOrderDetail>();
+		;
+		try {
+			//List<Txossd1> retlist = txossd1Repository.findAll();
+			List<Txossd1> retlist; 
+			
+			if ( showAllocated.equals("false" ))
+				retlist = txossd1Repository.findByCompanyDeallocated(importCompany, exportCompany);
+			else
+				retlist = txossd1Repository.findByCompanyAllocated(importCompany, exportCompany);
+			
+			for (Txossd1 detail : retlist) {
+				ShippingScheduleOrderDetail dtoDetail = new ShippingScheduleOrderDetail();
+				if (detail.getTxoesh1() != null) {
+					dtoDetail.setETA(detail.getTxoesh1().getId()
+							.getArrivalDate());
+					dtoDetail.setETD(detail.getTxoesh1().getId()
+							.getDepartDate());
+					dtoDetail.setPortOfArrival(detail.getTxoesh1().getId()
+							.getPortOfArrival());
+					dtoDetail.setPortOfDeparture(detail.getTxoesh1().getId()
+							.getPortOfDeparture());
+					dtoDetail.setVesselCode(detail.getTxoesh1().getTxovsc1()
+							.getVesselCode());
+				} else {
+					dtoDetail.setETA(null);
+					dtoDetail.setETD(null);
+					dtoDetail.setPortOfArrival(null);
+					dtoDetail.setPortOfDeparture(null);
+					dtoDetail.setVesselCode(null);
+				}
+
+				dtoDetail.setPCNO(detail.getPcNo());
+				dtoDetail.setItemNo(detail.getId().getItemNo());
+				dtoDetail.setOrderNo(detail.getId().getOrderNo());
+				dtoDetail.setPartNo(detail.getPartNumber());
+				dtoDetail.setQty(detail.getOrderQty());
+				dtoDetail.setRTA(detail.getRta());
+				dtoDetail.setRTD(detail.getRtd());
+				dtoDetail.setShipNo(detail.getId().getShipNo());
+				dtoDetail.setExportCompany(detail.getId().getExportCompany());
+				dtoDetail.setImportCompany(detail.getId().getImportCompany());
+
+				ret.add(dtoDetail);
+			}
+			return ret;
+		} catch (Exception ex) {
+			log.fatal(
+					"Exception " + ex.getClass().getName() + " "
+							+ ex.getMessage(), ex);
+			return null;
+		}
+
+	}
+
+	Date processDate(String dateString) {
+		String numeric;
+		int numericInt;
+		Date date = new Date();
+
+		// Get values and set - first day of month
+		numeric = dateString.substring(0, 2);
+		numericInt = Integer.parseInt(numeric);
+		date.setDate(numericInt);
+
+		// Month of year
+		numeric = dateString.substring(2, 4);
+		numericInt = Integer.parseInt(numeric);
+		date.setMonth(numericInt - 1);
+
+		// Year and Century
+		numeric = dateString.substring(4);
+		numericInt = Integer.parseInt(numeric);
+		date.setYear(numericInt - 1900);
+		return date;
+	}
+
+	public boolean initRecords(Record rec00, Record rec10, Record rec20,
+			Record rec99) {
+		/* Record 00 */
+		rec00.setFormat(Formats.CSV);
+		Field fileID = new Field("FileID", Format.STRING, 2, -1, 2, -1, -1,
+				null, false, true);
+		rec00.addField(fileID);
+
+		Field recordID = new Field("RecordID", Format.STRING, 2, -1, 2, -1, -1,
+				null, false, true);
+		rec00.addField(recordID);
+
+		Field applicationCode = new Field("ApplicationCode", Format.STRING, 5,
+				-1, 5, -1, -1, null, false, true);
+		rec00.addField(applicationCode);
+
+		Field originCode = new Field("OriginCode", Format.STRING, 10, -1, 10,
+				-1, -1, null, false, true);
+		rec00.addField(originCode);
+
+		Field destinationCode = new Field("DestinationCode", Format.STRING, 10,
+				-1, 10, -1, -1, null, false, true);
+		rec00.addField(originCode);
+
+		Field userID = new Field("UserID", Format.STRING, 10, -1, 10, -1, -1,
+				null, false, true);
+		rec00.addField(userID);
+
+		Field batchSeq = new Field("BatchSeq", Format.STRING, 10, -1, 10, -1,
+				-1, null, false, true);
+		rec00.addField(batchSeq);
+
+		/* Record 10 */
+		rec10.setFormat(Formats.CSV);
+		Field fileID10 = new Field("FileID", Format.STRING, 2, -1, 2, -1, -1,
+				null, false, true);
+		rec10.addField(fileID10);
+
+		Field recordID10 = new Field("RecordID", Format.STRING, 2, -1, 2, -1,
+				-1, null, false, true);
+		rec10.addField(recordID10);
+
+		Field exporterCompany10 = new Field("ExporterCompany", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec10.addField(exporterCompany10);
+
+		Field exporterDivision10 = new Field("ExporterDivision", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec10.addField(exporterDivision10);
+
+		Field importerCompany10 = new Field("ImporterCompany", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec10.addField(importerCompany10);
+
+		Field importerDivision10 = new Field("ImporterDivision", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec10.addField(importerDivision10);
+
+		Field orderNumber10 = new Field("OrderNumber", Format.STRING, 21, -1,
+				21, -1, -1, null, false, true);
+		rec10.addField(orderNumber10);
+
+		Field productCode10 = new Field("ProductCode", Format.STRING, 1, -1, 1,
+				-1, -1, null, false, true);
+		rec10.addField(productCode10);
+
+		Field setMisc10 = new Field("SetMisc", Format.STRING, 1, -1, 1, -1, -1,
+				null, false, true);
+		rec10.addField(setMisc10);
+
+		Field destination10 = new Field("Destination", Format.STRING, 3, -1, 3,
+				-1, -1, null, false, true);
+		rec10.addField(destination10);
+
+		Field yearCode10 = new Field("YearCode", Format.STRING, 1, -1, 1, -1,
+				-1, null, false, true);
+		rec10.addField(yearCode10);
+
+		Field reasonCode10 = new Field("ReasonCode", Format.STRING, 2, -1, 2,
+				-1, -1, null, false, true);
+		rec10.addField(reasonCode10);
+
+		Field issueCompany10 = new Field("IssueCompany", Format.STRING, 4, -1,
+				4, -1, -1, null, false, true);
+		rec10.addField(issueCompany10);
+
+		Field requiredTransportation10 = new Field("RequiredTransportation",
+				Format.STRING, 5, -1, 5, -1, -1, null, false, true);
+		rec10.addField(requiredTransportation10);
+
+		Field orderDate10 = new Field("OrderDate", Format.STRING, 8, -1, 8, -1,
+				-1, null, false, true);
+		rec10.addField(orderDate10);
+
+		Field chargeableCode10 = new Field("ChargeableCode", Format.STRING, 1,
+				-1, 1, -1, -1, null, false, true);
+		rec10.addField(chargeableCode10);
+
+		Field orderIssuedDepartment10 = new Field("OrderIssuedDepartment",
+				Format.STRING, 35, -1, 35, -1, -1, null, false, true);
+		rec10.addField(orderIssuedDepartment10);
+
+		Field orderIssuedPerson10 = new Field("OrderIssuedPerson",
+				Format.STRING, 35, -1, 35, -1, -1, null, false, true);
+		rec10.addField(orderIssuedPerson10);
+
+		Field lotSubinfo10 = new Field("LotSubInfo", Format.STRING, 50, -1, 50,
+				-1, -1, null, false, true);
+		rec10.addField(lotSubinfo10);
+
+		Field versionNumber10 = new Field("VersionNumber", Format.STRING, 2,
+				-1, 2, -1, -1, null, false, true);
+		rec10.addField(versionNumber10);
+
+		Field pPOModelPlantCode10 = new Field("PPOModelPlantCode",
+				Format.STRING, 1, -1, 1, -1, -1, null, false, true);
+		rec10.addField(pPOModelPlantCode10);
+
+		Field pPOModelLineNumber10 = new Field("PPOModelLineNumber",
+				Format.STRING, 1, -1, 1, -1, -1, null, false, true);
+		rec10.addField(pPOModelLineNumber10);
+
+		/* Record 20 */
+		rec20.setFormat(Formats.CSV);
+		Field fileID20 = new Field("FileID", Format.STRING, 2, -1, 2, -1, -1,
+				null, false, true);
+		rec20.addField(fileID20);
+
+		Field recordID20 = new Field("RecordID", Format.STRING, 2, -1, 2, -1,
+				-1, null, false, true);
+		rec20.addField(recordID20);
+
+		Field exporterCompany20 = new Field("ExporterCompany", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec20.addField(exporterCompany20);
+
+		Field exporterDivision20 = new Field("ExporterDivision", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec20.addField(exporterDivision20);
+
+		Field importerCompany20 = new Field("ImporterCompany", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec20.addField(importerCompany20);
+
+		Field importerDivision20 = new Field("ImporterDivision", Format.STRING,
+				4, -1, 4, -1, -1, null, false, true);
+		rec20.addField(importerDivision20);
+
+		Field orderNumber20 = new Field("OrderNumber", Format.STRING, 21, -1,
+				21, -1, -1, null, false, true);
+		rec20.addField(orderNumber20);
+
+		Field itemNumber20 = new Field("ItemNumber", Format.STRING, 5, -1, 5,
+				-1, -1, null, false, true);
+		rec20.addField(itemNumber20);
+
+		Field rTA20 = new Field("RTA", Format.STRING, 8, -1, 8, -1, -1, null,
+				false, true);
+		rec20.addField(rTA20);
+
+		Field rTD20 = new Field("RTD", Format.STRING, 8, -1, 8, -1, -1, null,
+				false, true);
+		rec20.addField(rTD20);
+
+		Field partNumber20 = new Field("PartNumber", Format.STRING, 18, -1, 18,
+				-1, -1, null, false, true);
+		rec20.addField(partNumber20);
+
+		Field partColour20 = new Field("PartColour", Format.STRING, 11, -1, 11,
+				-1, -1, null, false, true);
+		rec20.addField(partColour20);
+
+		Field partNumberName20 = new Field("PartNumberName", Format.STRING, 30,
+				-1, 30, -1, -1, null, false, true);
+		rec20.addField(partNumberName20);
+
+		Field dashPartNumber20 = new Field("DashPartNumber", Format.STRING, 23,
+				-1, 23, -1, -1, null, false, true);
+		rec20.addField(dashPartNumber20);
+
+		Field basePartNumber20 = new Field("BasePartNumber", Format.STRING, 15,
+				-1, 15, -1, -1, null, false, true);
+		rec20.addField(basePartNumber20);
+
+		Field dashBasePartNumber20 = new Field("DashBasePartNumber",
+				Format.STRING, 23, -1, 23, -1, -1, null, false, true);
+		rec20.addField(dashBasePartNumber20);
+
+		Field orderQuantity20 = new Field("OrderQuantity", Format.STRING, 7,
+				-1, 7, -1, -1, null, false, true);
+		rec20.addField(orderQuantity20);
+
+		Field fixUnofficially20 = new Field("FixUnofficially", Format.STRING,
+				1, -1, 1, -1, -1, null, false, true);
+		rec20.addField(fixUnofficially20);
+
+		Field orderCategory20 = new Field("OrderCategory", Format.STRING, 1,
+				-1, 1, -1, -1, null, false, true);
+		rec20.addField(orderCategory20);
+
+		/* Record 99 */
+		rec99.setFormat(Formats.CSV);
+		Field fileID99 = new Field("FileID", Format.STRING, 2, -1, 2, -1, -1,
+				null, false, true);
+		rec99.addField(fileID99);
+
+		Field recordID99 = new Field("RecordID", Format.STRING, 2, -1, 2, -1,
+				-1, null, false, true);
+		rec99.addField(recordID99);
+
+		Field applicationCode99 = new Field("ApplicationCode", Format.STRING,
+				5, -1, 5, -1, -1, null, false, true);
+		rec99.addField(applicationCode99);
+
+		Field transmitDate99 = new Field("TransmitDate", Format.STRING, 8, -1,
+				8, -1, -1, null, false, true);
+		rec99.addField(transmitDate99);
+
+		Field transmitTime99 = new Field("TransmitTime", Format.STRING, 6, -1,
+				6, -1, -1, null, false, true);
+		rec99.addField(transmitTime99);
+
+		Field transmitRecords99 = new Field("TransmitRecords", Format.STRING,
+				7, -1, 7, -1, -1, null, false, true);
+		rec99.addField(transmitRecords99);
+
+		return false;
+	}
+
+	public List getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List messages) {
+		this.messages = messages;
+	}
+
+}

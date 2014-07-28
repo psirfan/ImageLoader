@@ -1,0 +1,88 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+ <head>
+ <style type="text/css"> .ui-jqgrid tr.jqgrow td { height: 30px; }</style>
+<title>RECORD MODULE CASE LOAD ONTO CONTAINER</title>
+
+</head>
+<body>
+<div  id = "moduleCaseLoadDiv" class="main" ng-controller="ModuleCaseLoadContainerController">	
+	<h2>RECORD MODULE CASE LOAD ONTO CONTAINER</h2>
+	
+	<table width="50%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td width="30%">	
+				<label for="lblImportCompanies" style="align: left; width: 100%">Container Id:</label>
+			</td>
+			<td  width="50%">
+				<select ng-model="containerIDSelect" style="align: left; width: 100%" class = "inputText" ng-change="getPlanDespatchDate();">			 
+				 	<option ng:repeat="m in containerIDs.returnedValues" value="{{m.key}}" selected="selected">{{m.key}}</option>
+				</select>
+			</td>				
+			</td width="20%" >
+			<td align="center">
+				<input type="text" class = "inputText"  style="height: 20px;" name="planDespatchDate" ng-model="planDespatchDate" readonly="readonly">		
+			</td>
+		</tr>
+		<tr >
+			<td width="20%"></td><td  width="60%"></td></td width="20%"><td>
+		</tr>
+		<tr>
+			<td width="30%"></td><td  width="50%"></td></td width="20%"><td>
+		</tr>
+		<tr>
+			<td width="30%">	
+				<label for="lblmdc" style="align: left; width: 100%">Module case Number:</label>
+			</td>
+			<td  width="50%">
+				<input style= "width: 100%; text-align: left;" ngTrim="true" type="text" class = "inputText" name="moduleCaseNumber" ng-model="moduleCaseNumber" ng-keyup="getModuleCaseNumbers()">
+				<div ng-show="countt > 0"class= "moduleListBox" id="listModuleCaseDiv" name="listModuleCaseDiv" style="height:200px;overflow:scroll;overflow-x: hidden;left:450; z-index:10;">					 
+						 <ul id="uiModuleCase">
+							<li ng-repeat=" m in allModules.returnedValues" ng-bind-html-unsafe="m.key" ng-click="swapListValuetoModuleCase(m)">     				
+	     						{{m.value}}
+							</li>
+						</ul>					
+				</div>
+			</td>		
+			<td  width="20%">
+				<button  class= "smallButton" style="height: 32px;" name="confirmLoad"  ng-click= 'moducleCaseloadfunction()'>Confirm Loaded</button>
+			</td>
+		</tr>
+		<tr>
+			<td width="30%"></td><td  width="50%"></td></td width="20%"><td>
+		</tr>
+	</table>
+	<div class="dataEntryPaneGSP">
+	<h4>Record Module Case Load Onto Container</h4>	
+	<table width="80%" height="380px" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td style="align: center; width: 100%">
+				<table id="loadContainerData"> 
+				</table>
+			<td>			
+		</tr>
+	</table>
+	</div>	
+</div>
+<div id="unloadmoduleDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Module Case unloaded from container successfully</span></p>
+</div>	
+<div id="errorDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Unknown Error</span></p>
+</div>	
+<div id="modulecaseExistDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Module case number does not exist</span></p>
+</div>	
+<div id="alreadyExistDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Module case has already been loaded onto a container</span></p>
+</div>	
+<div id="notPackedDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Module case has not been completely packed yet</span></p>
+</div>	
+<div id="loadedSuccssfullyDiv" title="Module Case Load Onto Container">
+	<p><span  id="DialogText">Module loaded onto container successfully</span></p>
+</div>	
+</body>
+</html>
+

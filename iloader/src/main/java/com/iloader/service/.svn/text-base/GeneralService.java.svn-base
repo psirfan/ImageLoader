@@ -1,0 +1,199 @@
+package com.honda.eu.hum.reversekd.service;
+
+
+import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.honda.eu.hum.reversekd.dao.Txoecc1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoicc1Repository;
+import com.honda.eu.hum.reversekd.dao.Txovsc1Repository;
+import com.honda.eu.hum.reversekd.dao.Tzzcnt1Repository;
+import com.honda.eu.hum.reversekd.dto.Table;
+
+/*
+ * This service manages all aspects of managing Shipping schedules
+ * 
+ */
+
+
+@Controller
+@EnableTransactionManagement  
+public class GeneralService {
+
+    @Resource  
+    private Txoecc1Repository txoecc1Repository;
+    @Resource  
+    private Txoicc1Repository txoicc1Repository;
+    @Resource  
+    private Txovsc1Repository txovsc1Repository;
+    @Resource  
+    private Tzzcnt1Repository tzzcnt1Repository;
+    
+    
+    /*
+     * 
+     * Provide list of Export companies
+     * 
+     * 
+     */
+    
+    @RequestMapping("/getExportCompanies")
+    public @ResponseBody ServiceResponse getExporters() {
+    	ServiceResponse sr = new ServiceResponse();
+    	List<Table> result = txoecc1Repository.findAllCompaniesIDDesc();
+    	Table resultArray[] = new Table[result.size()];
+     	
+     	int count = 0;
+     	for ( Object o : result)
+     	{
+     		Object[] oa = (Object[]) o;
+     		Table t = new Table();
+     		t.setKey(oa[0]);
+     		t.setValue(oa[1]);
+     		resultArray[count] = t;
+     		count++;
+     	}
+     	
+    	sr.setMessage("Processed successfully");
+    	sr.setReturnCode(1);
+    	sr.setReturnedValues(resultArray);
+    	return sr;		
+    }
+    
+    /*
+     * 
+     * Provide list of Import companies
+     * 
+     * 
+     */
+    @RequestMapping("/getImportCompanies")
+    public @ResponseBody ServiceResponse getImporters() {
+    	ServiceResponse sr = new ServiceResponse();
+    	
+    	
+    	List<Table> result = txoicc1Repository.findAllCompaniesIDDesc();
+    	
+     	Table resultArray[] = new Table[result.size()];
+     	
+     	int count = 0;
+     	for ( Object o : result)
+     	{
+     		Object[] oa = (Object[]) o;
+     		Table t = new Table();
+     		t.setKey(oa[0]);
+     		t.setValue(oa[1]);
+     		resultArray[count] = t;
+     		count++;
+     	}
+     	
+    	sr.setMessage("Processed successfully");
+    	sr.setReturnCode(1);
+    	sr.setReturnedValues(resultArray);
+    	return sr;		
+    }
+    
+    /*
+     * 
+     * Provide list of Vessels
+     * 
+     * 
+     */
+    @RequestMapping("/getVessels")
+    public @ResponseBody ServiceResponse getVessels() {
+    	ServiceResponse sr = new ServiceResponse();
+    	
+    	
+    	List<Table> result = txovsc1Repository.findAllVesselsIDName();
+    	
+     	Table resultArray[] = new Table[result.size()];
+     	
+     	int count = 0;
+     	for ( Object o : result)
+     	{
+     		Object[] oa = (Object[]) o;
+     		Table t = new Table();
+     		t.setKey(oa[0]);
+     		t.setValue(oa[1]);
+     		resultArray[count] = t;
+     		count++;
+     	}
+     	
+    	sr.setMessage("Processed successfully");
+    	sr.setReturnCode(1);
+    	sr.setReturnedValues(resultArray);
+    	return sr;		
+    }
+    
+    /*
+     * 
+     * Provide list of Ports of departure
+     * 
+     * 
+     */
+    @RequestMapping("/getPortsOfDeparture")
+    public @ResponseBody ServiceResponse getPortsOfDeparture() {
+    	ServiceResponse sr = new ServiceResponse();
+    	
+    	
+    	List<Table> result = tzzcnt1Repository.findAllPortsOfDeparture();
+    	
+     	Table resultArray[] = new Table[result.size()];
+     	
+     	int count = 0;
+     	for ( Object o : result)
+     	{
+     		Object[] oa = (Object[]) o;
+     		Table t = new Table();
+     		String port = (String ) oa[0];
+     		port = port.substring(8, 11);
+     		t.setKey(port);
+     		t.setValue(port);
+     		resultArray[count] = t;
+     		count++;
+     	}
+     	
+    	sr.setMessage("Processed successfully");
+    	sr.setReturnCode(1);
+    	sr.setReturnedValues(resultArray);
+    	return sr;		
+    }
+    
+    /*
+     * 
+     * Provide list of Ports of departure
+     * 
+     * 
+     */
+    @RequestMapping("/getPortsOfArrival")
+    public @ResponseBody ServiceResponse getPortsOfArrival() {
+    	ServiceResponse sr = new ServiceResponse();
+    	
+    	
+    	List<Table> result = tzzcnt1Repository.findAllPortsOfDeparture();
+    	
+     	Table resultArray[] = new Table[result.size()];
+     	
+     	int count = 0;
+     	for ( Object o : result)
+     	{
+     		Object[] oa = (Object[]) o;
+     		Table t = new Table();
+     		String port = (String ) oa[0];
+     		port = port.substring(8, 11);
+     		t.setKey(port);
+     		t.setValue(port);
+     		resultArray[count] = t;
+     		count++;
+     	}
+     	
+    	sr.setMessage("Processed successfully");
+    	sr.setReturnCode(1);
+    	sr.setReturnedValues(resultArray);
+    	return sr;		
+    }
+    
+}

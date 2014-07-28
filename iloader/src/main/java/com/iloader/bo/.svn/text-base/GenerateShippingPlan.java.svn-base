@@ -1,0 +1,265 @@
+package com.honda.eu.hum.reversekd.bo;
+
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dao.Txoecc1Repository;
+import com.honda.eu.hum.reversekd.dao.Txoepn1;
+import com.honda.eu.hum.reversekd.dao.Txoepn1Repository;
+import com.honda.eu.hum.reversekd.dao.Txosmp1;
+import com.honda.eu.hum.reversekd.dao.Txosmp1Repository;
+import com.honda.eu.hum.reversekd.dao.Txossd1;
+import com.honda.eu.hum.reversekd.dao.Txossd1Id;
+import com.honda.eu.hum.reversekd.dao.Txossd1Repository;
+import com.honda.eu.hum.reversekd.dao.Txossh1;
+import com.honda.eu.hum.reversekd.dao.Txossh1Id;
+import com.honda.eu.hum.reversekd.dao.Txossh1Repository;
+import com.honda.eu.hum.reversekd.dao.Txossm1;
+import com.honda.eu.hum.reversekd.dao.Txossm1Repository;
+import com.honda.eu.hum.reversekd.dao.Tzzcnt1Repository;
+import com.honda.eu.hum.reversekd.dto.ShippinggeneratePlan;
+import com.honda.eu.hum.reversekd.dto.UniqueTxosmp1;
+import com.honda.eu.hum.reversekd.dto.UniqueTxossd1;
+
+
+
+
+@Controller
+@EnableTransactionManagement
+public class GenerateShippingPlan {
+	
+	private static final Log log = LogFactory.getLog(GenerateShippingPlan.class);
+
+
+		
+	
+	@Resource  
+	private Txossd1Repository txossd1Repository;	
+	
+	@Resource  
+    private Txoecc1Repository txoecc1Repository;
+	
+	@Resource  
+    private Tzzcnt1Repository tzzcnt1Repository;
+	
+	@Resource
+	private	Txossh1Repository txossh1Repository;
+	
+	@Resource
+	private	Txosmp1Repository txosmp1Repository;
+	
+	@Resource
+	private	Txoepn1Repository txoepn1Repository;
+	
+	@Resource
+	private	Txossm1Repository txossm1Repository;
+	
+	//getting data for Grid for Generate shipping plan for import and export company. 
+	 @Transactional(readOnly = true)
+	public List<ShippinggeneratePlan> getGridData(String importCompany, String exportCompany, char packSchedFlag){		
+		if (txossd1Repository.isExistRecord(importCompany, exportCompany) > 0 ){
+				List<ShippinggeneratePlan> gridDate = txossd1Repository.gettingPlanedShipDetail(importCompany, exportCompany, packSchedFlag);
+				return gridDate;
+		}else{
+			
+		}		return null;
+				
+	}
+	//getting data for Grid for all import and export comapnies. 
+		@Transactional(readOnly = true)
+		public List<ShippinggeneratePlan> getGridDataAll(char packSchedFlag){		
+			List<ShippinggeneratePlan> gridDate = txossd1Repository.gettingPlanedShipDetailall(packSchedFlag);
+			return gridDate;					
+		}
+	 
+	//Getting for Plant Code 
+	@Transactional(readOnly = true)
+	public char getPlantCode(String exportCompanyID){		
+		Txoecc1 txoecc1 = txoecc1Repository.findByCompanyNameID(exportCompanyID);	
+		return txoecc1.getHumPlant();
+	}
+	
+	//Function for updating data of shipping detail order
+	@Transactional
+	public void processData(String importCompany,String exportCompany,String vesselCode,String departDate,String portOfDeparture, 
+							String arrivalDate,String portOfArrival,char humPlant){
+		txossd1Repository.processDataGSP(importCompany,exportCompany,vesselCode,departDate,portOfDeparture, arrivalDate,portOfArrival,humPlant);
+	}
+	
+	//Function for updating data of shipping detail order
+	@Transactional
+	public  List<Txossd1> findpartNumbers(String importCompany,String exportCompany,String vesselCode,String departDate,String portOfDeparture, String arrivalDate,String portOfArrival){
+		 List<Txossd1> 	txossd1 = txossd1Repository.findpartnumbers(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);
+		 return txossd1;
+	}
+	
+	//Function for updating data of shipping detail order
+	@Transactional
+	public  String generatingModuleCase(char plantCode, String importCompany, String exportCompany, String orderNo, char caseSize, short seq){
+		String moduleCase = "";
+		
+	 	if (plantCode=='E')
+	 		moduleCase  ="F";
+	 	else
+	 		moduleCase  ="E";
+	 	
+	 	if (caseSize=='H')
+	 		moduleCase  =moduleCase + "H";
+	 	else
+	 		moduleCase  =moduleCase + "F";
+	 	
+	 	Txossh1Id txossh1Id =  new Txossh1Id(importCompany,exportCompany,orderNo); 
+	 	Txossh1 txossh1 = txossh1Repository.findOne(txossh1Id);
+	 	
+	 	moduleCase  = moduleCase + txossh1.getModelYear();
+	 	moduleCase = moduleCase + "Cj" + exportCompany.substring(0, 3);
+	 	
+	 	if (plantCode=='E')
+	 		moduleCase = moduleCase + "OOB ";
+	 	else
+	 		moduleCase = moduleCase + "OOA ";
+	 	
+	 	moduleCase  = moduleCase + seq;
+	 	
+	 return moduleCase;
+	}
+	//Function for getting plan pack date according to CASE_PACK_OFFSET system variable	
+	@Transactional
+	public String getPackPlanDate(char plantCode, Date shipToPortDate){	
+		String planPackDate  = tzzcnt1Repository.getCalculatedPlanpackDate(plantCode,shipToPortDate.toString());
+		return planPackDate;	
+	}
+	
+	//Function for getting more than one module case for order.	
+	@Transactional
+	public List<UniqueTxossd1> getUniqueOrder(String importCompany,String exportCompany,String vesselCode,String departDate,String portOfDeparture, String arrivalDate,String portOfArrival){	
+		 List<UniqueTxossd1> 	UniqueOrder = txossd1Repository.findUniqueOrder(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);			 
+		 return UniqueOrder;	
+	}
+	
+	//Function for getting if order have more than one module	
+	@Transactional
+	public List<UniqueTxosmp1> getUniqueTxosmp1(String importCompany,String exportCompany, int itemNo,String orderNo){	
+			 List<UniqueTxosmp1> uniqueModule = txosmp1Repository.getModuleCaseofOrder(importCompany, exportCompany, itemNo, orderNo);			 
+			 return uniqueModule;	
+	}
+	
+	//Function for updatting ship number	
+	@Transactional
+	public void updateShipNo(String importCompany,String exportCompany,String vesselCode,String departDate,String portOfDeparture, String arrivalDate,String portOfArrival, String orderNo,String shipNo, int itemNo){	
+			txossd1Repository.updateShipNo(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival, orderNo,shipNo, itemNo);
+	}
+	
+	//Function for updatting ship number	
+	@Transactional
+	public Txoepn1 gettingTxoepn1(String partNumber){	
+		Txoepn1 txoepn1 = txoepn1Repository.findOne(partNumber);
+		return txoepn1;
+	}
+	
+	//Function for updatting ship number	
+	@Transactional
+	public short gettingSequenceforPPD(String planPackDate){	
+			short PPD = txossm1Repository.getSequence(planPackDate);
+			return PPD;
+	}
+	
+	//Function for updatting ship number	
+	@Transactional
+	public void SaveTxossm1(Txossm1 txossm1){	
+		txossm1Repository.save(txossm1);				
+	}
+	
+	//Function for updatting ship number	
+	@Transactional
+	public void SaveTxosmp1(Txosmp1 txosmp1){	
+		txosmp1Repository.save(txosmp1);				
+	}
+	//Function for updatting ship number	
+	@Transactional
+	public void SaveTxossd1(Txossd1 txossd1){	
+		txossd1Repository.save(txossd1);				
+	}
+	
+	//Function for updatting Txosmp1	
+	@Transactional
+	public void updateTxosmp1ShipNo(String moduleCaseNumber, String importCompany,String exportCompany,String orderNo,int itemNo, String shipNo){	
+			txosmp1Repository.updateTxosmp1ShipNo(moduleCaseNumber, importCompany, exportCompany,orderNo,itemNo, shipNo);
+	}	
+	//Finding single record in Txossd1	
+	@Transactional
+	public Txossd1 findRecordinTxossd1(String importCompany, String exportCompany,String orderNo,int itemNo,String shipNo){
+			Txossd1Id txossd1Id = new Txossd1Id();
+			txossd1Id.setImportCompany(importCompany);
+			txossd1Id.setExportCompany(exportCompany);
+			txossd1Id.setOrderNo(orderNo);
+			txossd1Id.setItemNo(itemNo);
+			txossd1Id.setShipNo(shipNo);
+			Txossd1 txossd1 = txossd1Repository.findOne(txossd1Id);
+			
+			return txossd1;
+			
+	}
+	//Finding single record in Txossd1	
+	@Transactional
+	public void cloneTxossd1(Txossd1 txossd11, String shipNo){
+			
+			Txossd1 newTxossd1 = new Txossd1();
+			
+			Txossd1Id txossd1Id = new Txossd1Id();
+			txossd1Id.setImportCompany(txossd11.getId().getImportCompany());
+			txossd1Id.setExportCompany(txossd11.getId().getExportCompany());
+			txossd1Id.setOrderNo(txossd11.getId().getOrderNo());
+			txossd1Id.setItemNo(txossd11.getId().getItemNo());
+			txossd1Id.setShipNo(shipNo);			
+			newTxossd1.setPcNo(txossd11.getPcNo());
+			newTxossd1.setPartNumber(txossd11.getPartNumber());
+			newTxossd1.setPartColour(txossd11.getPartColour());
+			newTxossd1.setShipQty(txossd11.getShipQty());
+			newTxossd1.setShipOrAir(txossd11.getShipOrAir());
+			newTxossd1.setShipperLineCd(txossd11.getShipperLineCd());
+			newTxossd1.setShipToPortLtst(txossd11.getShipToPortLtst());
+			newTxossd1.setShipToPortDate(txossd11.getShipToPortDate());
+			newTxossd1.setShipToPortOrig(txossd11.getShipToPortOrig());
+			newTxossd1.setTxoesh1(txossd11.getTxoesh1());
+			newTxossd1.setOrderQty(txossd11.getOrderQty());
+			newTxossd1.setRta(txossd11.getRta());
+			newTxossd1.setRtd(txossd11.getRtd());
+			newTxossd1.setAllocationFlag(txossd11.getAllocationFlag());
+			newTxossd1.setPackSchedFlag(txossd11.getPackSchedFlag());
+			newTxossd1.setShipPlanFlag(txossd11.getShipPlanFlag());
+			newTxossd1.setUserid("User 1");
+			newTxossd1.setTstamp(new Date());
+			
+					
+			txossd1Repository.save(txossd11);	
+			
+		}
+		
+	//Finding single record in Txossd1	
+	@Transactional
+	public void removePackagePlan(String importCompany,String exportCompany,String vesselCode,String departDate,String portOfDeparture, String arrivalDate,String portOfArrival){
+		//Deleting all exisiting Entries in table TXOSSM1
+		List <String> moduleCases =txosmp1Repository.gettingModuleCaseforDeletion(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);
+		for(String mc : moduleCases){
+			txossm1Repository.delete(mc);			
+		}
+		//Deleteing all Entries in TXOSMP1
+		txosmp1Repository.removePackagePlan(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);
+		//Deleting rows from TXOSSD1
+		txossd1Repository.removeTxossd1Rows(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);
+		//updating rows in TXOSSD1
+		txossd1Repository.updatingTxossd1(importCompany, exportCompany, vesselCode, departDate, portOfDeparture, arrivalDate, portOfArrival);	
+		
+	}
+	
+}

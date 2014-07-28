@@ -1,0 +1,33 @@
+package com.honda.eu.hum.reversekd.dto;
+
+import com.honda.eu.hum.reversekd.dao.Txoesh1;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Id;
+import com.honda.eu.hum.reversekd.dao.Txossd1;
+import com.honda.eu.hum.reversekd.dao.Txossd1Id;
+
+public class ShippingScheduleOrderAllocate {
+
+	Txoesh1Id sailing;
+	Txossd1Id[] orders;
+	String purchaseContract;
+	
+	public Txoesh1Id getSailing() {
+		return sailing;
+	}
+	public void setSailing(Txoesh1Id sailing) {
+		this.sailing = sailing;
+	}
+	public Txossd1Id[] getOrders() {
+		return orders;
+	}
+	public void setOrders(Txossd1Id[] orders) {
+		this.orders = orders;
+	}
+	public String getPurchaseContract() {
+		return purchaseContract;
+	}
+	public void setPurchaseContract(String purchaseContract) {
+		this.purchaseContract = purchaseContract;
+	}
+
+}

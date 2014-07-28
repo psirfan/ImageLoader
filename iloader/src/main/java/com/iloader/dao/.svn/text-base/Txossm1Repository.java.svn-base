@@ -1,0 +1,17 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+  
+  
+public interface Txossm1Repository extends JpaRepository<Txossm1,String> 
+{
+	//getting Sequence number for plan pack date
+	@Query(value = "SELECT COUNT(PLAN_PACK_DATE) FROM XO.TXOSSM1 WHERE plan_pack_date = :planPackDate ", nativeQuery = true)	
+	public short getSequence(@Param("planPackDate") String planPackDate);
+
+}

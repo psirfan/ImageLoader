@@ -1,0 +1,9 @@
+    #DB properties:  
+    db.driver=com.ibm.db2.jcc.DB2Driver
+    db.url=jdbc:db2://humb:7010/HUMDD001
+    db.username=humap10
+    db.password=mamdarx8
+    #Hibernate Configuration:  
+    hibernate.dialect=org.hibernate.dialect.DB2390Dialect
+    hibernate.show_sql=true
+    entitymanager.packages.to.scan=com.honda.eu.hum.reversekd.dao

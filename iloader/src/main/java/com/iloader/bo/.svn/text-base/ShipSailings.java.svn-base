@@ -1,0 +1,118 @@
+package com.honda.eu.hum.reversekd.bo;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
+import com.honda.eu.hum.reversekd.dao.Txoesh1;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Id;
+import com.honda.eu.hum.reversekd.dao.Txoesh1Repository;
+import com.honda.eu.hum.reversekd.dto.Sailing;
+
+@Controller
+@EnableTransactionManagement  
+
+public class ShipSailings {
+
+	/* Schedule file records */
+	
+	List messages = null;
+	static Logger log = Logger.getRootLogger();
+	
+    @Resource  
+    private Txoesh1Repository txoesh1Repository;
+	
+    @Transactional
+    public List<Sailing> getSailings()
+	{
+    	List<Txoesh1> ret;
+    	
+	    String line = null;
+		try
+		{
+		  ret = txoesh1Repository.findAll();	
+		  
+	    	List<Sailing> returnedValuesList = new ArrayList<Sailing>();
+	    	
+	    	// Get values into data transfer object
+	    	for ( Txoesh1 sailing : ret)
+	    	{
+	    		Sailing dtoSailing = new Sailing();
+	    		dtoSailing.setArrivalDate(sailing.getId().getArrivalDate());
+	    		dtoSailing.setDepartDate(sailing.getId().getDepartDate());
+	    		dtoSailing.setPortOfArrival(sailing.getId().getPortOfArrival());
+	    		dtoSailing.setPortOfDeparture(sailing.getId().getPortOfDeparture());
+	    		dtoSailing.setVesselCode(sailing.getId().getVesselCode());
+	    		dtoSailing.setVesselName(sailing.getTxovsc1().getVesselName());
+	    		returnedValuesList.add(dtoSailing);
+	    	}
+
+		  log.info("Sailings processed successfully");
+		  return returnedValuesList;
+		}
+		
+		catch ( Exception ex)
+		{
+			log.fatal("Exception "+ex.getClass().getName()+" "+ex.getMessage(),ex);
+			return null;
+		}
+		
+	}
+    
+	public boolean add(String vessel, Date departDate, String pod,
+			Date arrivalDate, String poa) 
+	{
+		try
+		{
+		
+    	Txoesh1Id sailingId = new Txoesh1Id(vessel,departDate, pod.substring(0, 3), arrivalDate, poa.substring(0,3));
+    	Txoesh1 sailing = new Txoesh1();
+    	sailing.setId(sailingId);
+    	sailing.setTstamp(new Date());
+    	sailing.setUserid("XO");
+    	
+    	txoesh1Repository.save(sailing);
+    	
+    	return true;
+		}
+		catch (Exception ex )
+		{
+		log.fatal("Exception "+ex.getClass().getName()+" - "+ex.getMessage(), ex);
+    	return true;
+		}
+
+		
+	}
+	
+	public boolean delete(String vessel, Date departDate, String pod,
+			Date arrivalDate, String poa) 
+	{
+		try
+		{
+		
+    	Txoesh1Id sailingId = new Txoesh1Id(vessel,departDate, pod.substring(0, 3), arrivalDate, poa.substring(0,3));
+    	
+    	txoesh1Repository.delete(sailingId);
+    	
+    	return true;
+		}
+		catch (Exception ex )
+		{
+		log.fatal("Exception "+ex.getClass().getName()+" - "+ex.getMessage(), ex);
+    	return true;
+		}
+
+		
+	}
+	
+}

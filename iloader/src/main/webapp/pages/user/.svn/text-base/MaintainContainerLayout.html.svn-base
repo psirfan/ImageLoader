@@ -1,0 +1,32 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+<title>CONTAINER LAYOUT MAINTENANCE</title>
+
+</head>
+<body >
+<div  class="main">	
+	<h2>CONTAINER LAYOUT MAINTENANCE</h2>
+		<table width="70%"  align="center">
+			<tr width = "100%">
+			<td width = "10%"><label for="lblContainerID" style="align: left;"">Container Id:</label></td>
+			<td width = "40%"><select ng-model="containerIDSelect" style="align: left; width: 100%" class = "inputText" ng-change="getPlanDespatchDate();">			 
+				 	<option ng:repeat="m in containerIDs.returnedValues" value="{{m.key}}" selected="selected">{{m.key}}</option>
+			</select>
+			</td>		
+			<td width = "20%"><label for="lblPlandespatchdate" style="align: right;">Plan Despatch Date:</label></td>
+			<td width = "30%"><input type="text" class = "inputText"  style="height: 20px;" name="planDespatchDate" ng-model="planDespatchDate" readonly="readonly"></td>
+		 </tr>			
+		</table>
+	<div class="dataEntryPaneGSP" align="center">			
+		<table width="100%" id="gridTable">			
+		</table>			
+	</div>	
+	<div align="center" style="margin: 50px;">			
+			<button  style="margin-left: 5px;" class="button" >Update</button>
+			<button  style="margin-left: 5px;" class="button" >Reset</button>
+	</div>	
+</div>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+  
+  
+public interface Txosli1Repository extends JpaRepository<Txosli1, Txoest1Id> 
+{
+	
+	@Query(value = "select coalesce(sum(QUANTITY),0) from XO.TXOSLI1 where PART_NUMBER = :partNumber and reference = :reference and quantity_type =:quantityType",nativeQuery=true)
+	public int findByIDandReferenceQuantity(@Param("partNumber") String partNumber,@Param("reference") String reference, @Param("quantityType") String quantityType);
+	
+	@Query(value = "select coalesce(sum(QUANTITY),0) from XO.TXOSLI1 where PART_NUMBER = :partNumber and reference = :reference and quantity_type =:quantityType and location=:location",nativeQuery=true)
+	public int findQuantityforBuilaheadtowarehouse(@Param("partNumber") String partNumber,@Param("reference") String reference, @Param("quantityType") String quantityType,@Param("location") String location);
+}

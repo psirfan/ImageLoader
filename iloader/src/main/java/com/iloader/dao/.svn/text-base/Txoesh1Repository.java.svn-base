@@ -1,0 +1,14 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+import com.honda.eu.hum.reversekd.dto.ShippinggeneratePlan;
+import com.honda.eu.hum.reversekd.dto.Table;
+
+  
+  
+public interface Txoesh1Repository extends JpaRepository<Txoesh1, Txoesh1Id> 
+{
+}

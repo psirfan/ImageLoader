@@ -1,0 +1,39 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+<title>SELECT MODULE CASE FOR LABEL PRINTING</title>
+</head>
+<body ng-controller="ModuleCaseLabelPrintingController">
+<div  class="main">	
+	<h2>SELECT MODULE CASE FOR LABEL PRINTING</h2>
+	
+	<table width="70%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+	<tr>
+		<td>	
+			<label for="lblImportCompanies" style="align: left; width: 40%">Import Companies:</label>
+			<select id = "importCompaniesSelect" ng-model="importCompaniesSelect" style="align: left; width: 55%"   ng-change="filterImpCompany()"  ng-options="c.value for c in importcompanies"></select>
+		</td>
+		<td>
+			<label for="lblExportCompanies" style="align: right; width: 40%">Export Companies:</label>
+			<select  id="exportCompaniesSelect" ng-model="exportCompaniesSelect" style="align: right; width: 55%"  ng-change="filterExpCompany()" ng-options="c.value for c in exportcompanies"></select>	
+		</td>
+	</tr>	
+	</table>
+	<div id="dataGrid" class="dataEntryPaneGSP">
+	<h4>{{heading}}</h4>	
+	<table width="100%" height="380px" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td style="align: center; width: 100%">
+				<table id="gridTableId"> 
+				</table>
+			<td>			
+		</tr>
+	</table>
+	</div>	
+</div>
+<div id="serverMessage" title="Module Case Label Printing">
+	<p><span class="ui-icon ui-icon-check" style="float:left; margin:0 7px 20px 0;"></span>{{data.message}}</p>
+</div>
+</body>
+</html>
+

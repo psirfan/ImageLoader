@@ -1,0 +1,60 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+<title>GENERATE PACKING SCHEDULE</title>
+
+</head>
+<body >
+<div  class="main">	
+	<h2>GENERATE PACKING SCHEDULE</h2>
+	
+	<table width="70%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+	<tr>
+		<td>	
+			<label for="lblImportCompanies" style="align: left; width: 40%">Import Companies:</label>
+			<select  id = "importCompaniesSelect" ng-model="importCompaniesSelect"  style="align: left; width: 55%"  ng-change="filterCompany()" ng-options="c.value for c in importcompanies"></select>
+		</td>
+		<td>
+			<label for="lblExportCompanies" style="align: right; width: 40%">Export Companies:</label>
+			<select  id="exportCompaniesSelect" ng-model="exportCompaniesSelect" style="align: right; width: 55%" ng-change="filterCompany()" ng-options="c.value for c in exportcompanies"></select>		
+		</td>
+	</tr>	
+	</table>
+	<div class="dataEntryPaneGSP" ng-controller="PackingSchedulePlanController">
+	<h4>PLANNED SHIP SAILING DETAILS</h4>	
+	<table width="80%" height="380px" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td style="align: center; width: 100%">
+				<table id="gridTableId"> 
+				</table>
+			<td>			
+		</tr>
+	</table>
+	</div>
+	<table width="65%" align="center" cellpadding="5" cellspacing="0" style="border-width:1px 1px 1px 1px; padding-top: 100px;">
+		<tr style="width: 100%">
+			<td style="width: 25%"><button  ng-click="createPlan()" 	class= "button" name="createpkgplan" style="width: 100%; height: 50px;">Create Packing Plan</button></td>		
+			<td style="width: 25%"><button  ng-click="showpkgplan()" 	class= "button" name="showpkgplan"	 style="width: 100%; height: 50px;">Show Packing Plan</button></td>
+			<td style="width: 25%"><button  ng-click="removepkgplan()" class= "button" name="removepkgplan" style="width: 100%; height: 50px;">Remove Packing Plan</button></td>
+			<td style="width: 25%"><button  ng-click="hidepkgplan()" 	class= "button" name="hidepkgplan"	 style="width: 100%; height: 50px;">Hide Packing Plan</button></td>
+		</tr>
+	</table>
+	
+</div> 
+<div id="selectFilter" title="Packing Schedule Plan">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Please select the import\export company for creating/removing packing schedule.</p>		
+</div>
+<div id="rowSelect" title="Packing Schedule Plan">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Please select minimum one row for creating/removing packing schedule.</p>		
+</div>
+<div id="showbuton" title="Packing Schedule Plan">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Please Select import\export company for getting all packing schedule.</p>		
+</div>  
+<div id="mode" title="Packing Schedule Plan">
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You are not in appropriate mode. For Removing please select Show Packing button first</p>		
+</div> 
+<div id="serverMessage" title="Packing Schedule Plan">
+<p><span class="ui-icon ui-icon-check" style="float:left; margin:0 7px 20px 0;"></span>{{data.message}}</p>
+</body>
+</html>
+

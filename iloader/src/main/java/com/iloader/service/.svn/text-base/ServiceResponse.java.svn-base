@@ -1,0 +1,28 @@
+package com.honda.eu.hum.reversekd.service;
+
+public class ServiceResponse {
+	
+    int returnCode;	
+	String message;
+	Object returnedValues[];
+	
+	public int getReturnCode() {
+		return returnCode;
+	}
+	public void setReturnCode(int returnCode) {
+		this.returnCode = returnCode;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public Object[] getReturnedValues() {
+		return returnedValues;
+	}
+	public void setReturnedValues(Object[] returnedValues) {
+		this.returnedValues = returnedValues;
+	}
+
+}

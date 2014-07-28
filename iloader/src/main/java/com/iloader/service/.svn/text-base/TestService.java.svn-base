@@ -1,0 +1,30 @@
+package com.honda.eu.hum.reversekd.service;
+
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dao.Txoecc1Repository;
+
+@Controller
+@EnableTransactionManagement  
+public class TestService {
+
+    @Resource  
+    private Txoecc1Repository txoecc1Repository;
+    
+    @RequestMapping("/test")
+    public @ResponseBody Txoecc1 get() {
+    	Txoecc1 txoecc1 = new Txoecc1("1234", "1234567899",	'A', "userid", new Date());
+    	Txoecc1 newTxoecc1 = txoecc1Repository.save(txoecc1);
+        return newTxoecc1;
+    }
+}

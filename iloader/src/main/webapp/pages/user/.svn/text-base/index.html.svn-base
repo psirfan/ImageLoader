@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<!-- define angular app -->
+<html ng-app="exportApp">
+
+<head>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
+  <link rel="stylesheet" href="../../css/public/jquery.navgoco.css" type="text/css" media="screen" />
+
+  <script src="../../js/public/jquery-1.11.0.min.js"></script>
+  <script src="../../js/public/jquery-ui-1.10.4.custom.min.js"></script>
+  <script type="text/javascript" src="../../js/public/jquery.navgoco.min.js"></script>
+  <script src="../../js/public/angular/angular-file-upload-shim.js"></script>
+  <script src="../../js/public/angular/angular.min.js"></script>
+  <script src="../../js/public/angular/angular-file-upload.js"></script>
+  <script src="../../js/public/angular/angular-route.min.js"></script>
+  <script src="../../js/user/ShippingScheduleLoad.js"></script>
+  <script src="../../js/user/ShippingScheduleMaint.js"></script>
+  <script src="../../js/user/index.js"></script>
+  
+  <title>Power Train Export</title>
+</head>
+
+<!-- define angular controller -->
+<body ng-controller="mainController">
+  <div class="navbar navbar-default">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-brand" href="/">Power train export</span>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+        <li><a href="#about"><i class="fa fa-shield"></i> About</a></li>
+        <li><a href="#contact"><i class="fa fa-comment"></i> Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  
+ <div id="side" style="position: fixed; float: left; z-index: 2; background:white;   width:175px; height:70%;" class="nav">
+  <ul id="navbar">
+    <li><a href="#">Menu</a>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Shipping Schedule</a></li>
+            <ul>
+                <li><a href="#ShippingScheduleMaint">Maintain</a></li>
+                <li><a href="#ShippingScheduleLoad">Load</a></li>
+            </ul>
+        </ul>
+    </li>
+    <!-- etc... -->
+</ul>
+</div>
+  
+  <div id="main">
+    <!-- angular templating -->
+		<!-- this is where content will be injected -->
+    <div ng-view></div>
+    
+  </div>
+</body>
+
+</html>

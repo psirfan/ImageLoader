@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table-filter match-name="TXOSSC1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSSM1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSMP1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOTRCM1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSSH1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSSD1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOECC1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOICC1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOESH1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOVSC1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSLI1" match-schema="XO"></table-filter>
+	<table-filter match-name="TXOSLP1" match-schema="XO"></table-filter>
+</hibernate-reverse-engineering>

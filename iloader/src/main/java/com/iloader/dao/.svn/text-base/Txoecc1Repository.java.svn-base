@@ -1,0 +1,25 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dto.Table;
+  
+  
+public interface Txoecc1Repository extends JpaRepository<Txoecc1, String> 
+{
+	@Query("select c from Txoecc1 c where c.exportCompany = ?1")
+	List<Txoecc1> findByCompanyName(String Name);
+	
+	@Query(value = "select * from xo.Txoecc1 where export_company = ?1", nativeQuery = true)
+	List<Txoecc1> findByCompanyNameSQL(String Name);
+	
+	@Query(value = "select EXPORT_COMPANY as Key, EXPORT_COMPANY_DESC as Value from XO.TXOECC1 order by EXPORT_COMPANY_DESC",nativeQuery=true)
+	public List<Table> findAllCompaniesIDDesc();
+	
+	@Query(value = "select * from xo.Txoecc1 where export_company = ?1", nativeQuery = true)
+	public Txoecc1 findByCompanyNameID(String Name);
+}

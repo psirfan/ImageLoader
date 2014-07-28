@@ -1,0 +1,57 @@
+package com.honda.eu.hum.reversekd.service;
+
+/*  
+ * 
+ * User BookFinishedGoodsOffLine credentials 
+ * 
+ * 
+ */ 
+
+public class BookFinishedGoodsOffLine {
+
+    private String partNumber 	 = null;
+    private String machiningLot  = null;
+    private String machiningLot2 = null;
+    private int    quantity 	 = 0;
+    
+	public BookFinishedGoodsOffLine(String partNumber, String machiningLot, String machiningLot2, int quantity) {
+		this.partNumber = partNumber;
+		this.machiningLot = machiningLot;
+		this.machiningLot2 = machiningLot2;
+		this.quantity = quantity;
+	}
+
+	public String getPartNumber() {
+		return partNumber;
+	}
+
+	public void setPartNumber(String partNumber) {
+		this.partNumber = partNumber;
+	}
+
+	public String getMachiningLot() {
+		return machiningLot;
+	}
+
+	public void setMachiningLot(String machiningLot) {
+		this.machiningLot = machiningLot;
+	}
+
+	public String getMachiningLot2() {
+		return machiningLot2;
+	}
+
+	public void setMachiningLot2(String machiningLot2) {
+		this.machiningLot2 = machiningLot2;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}	
+	
+
+}

@@ -1,0 +1,49 @@
+package com.honda.eu.hum.reversekd.dto;
+
+import java.util.Date;
+
+public class Sailing {
+
+	String vesselCode;
+	String vesselName;
+	Date departDate;
+	String portOfDeparture;
+	Date arrivalDate;
+	String portOfArrival;
+	public String getVesselCode() {
+		return vesselCode;
+	}
+	public void setVesselCode(String vesselCode) {
+		this.vesselCode = vesselCode;
+	}
+	public String getVesselName() {
+		return vesselName;
+	}
+	public void setVesselName(String vesselName) {
+		this.vesselName = vesselName;
+	}
+	public Date getDepartDate() {
+		return departDate;
+	}
+	public void setDepartDate(Date departDate) {
+		this.departDate = departDate;
+	}
+	public String getPortOfDeparture() {
+		return portOfDeparture;
+	}
+	public void setPortOfDeparture(String portOfDeparture) {
+		this.portOfDeparture = portOfDeparture;
+	}
+	public Date getArrivalDate() {
+		return arrivalDate;
+	}
+	public void setArrivalDate(Date arrivalDate) {
+		this.arrivalDate = arrivalDate;
+	}
+	public String getPortOfArrival() {
+		return portOfArrival;
+	}
+	public void setPortOfArrival(String portOfArrival) {
+		this.portOfArrival = portOfArrival;
+	}
+}

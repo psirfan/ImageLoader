@@ -1,0 +1,22 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dto.Table;
+  
+  
+public interface Txoicc1Repository extends JpaRepository<Txoicc1, String> 
+{
+	@Query(value = "select IMPORT_COMPANY as Key, IMPORT_COMPANY_DESC as Value from XO.TXOICC1 order by IMPORT_COMPANY_DESC",nativeQuery=true)
+	public List<Table> findAllCompaniesIDDesc();
+}

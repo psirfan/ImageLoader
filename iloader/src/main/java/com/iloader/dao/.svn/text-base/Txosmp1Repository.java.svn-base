@@ -1,0 +1,103 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dto.UniqueTxosmp1;
+
+
+  
+  
+public interface Txosmp1Repository extends JpaRepository<Txosmp1, Txosmp1Id> 
+{
+    
+	@Query(value ="SELECT DISTINCT SMP1.MODULE_CASE_NUMBER AS moduleCase," +
+			  "		  SMP1.ORDER_NO AS orderNo, "+
+			  "		  SMP1.ITEM_NO AS itemNo," +
+			  "		  SMP1.SHIP_NO AS shipNo," +		  
+			  "		  SMP1.PACK_QTY AS packQty "+
+			  "FROM	  XO.TXOSMP1 SMP1  "+
+			  "WHERE  SMP1.IMPORT_COMPANY     = :importCompany "+ 
+			  "AND	  SMP1.EXPORT_COMPANY     = :exportCompany "+ 
+			  "AND	  SMP1.ORDER_NO		      = :orderNo "+
+			  "AND	  SMP1.ITEM_NO            = :itemNo "+
+			  "ORDER BY SMP1.IMPORT_COMPANY, SMP1.EXPORT_COMPANY, SMP1.ORDER_NO, SMP1.ITEM_NO, SMP1.SHIP_NO ",nativeQuery=true)
+	public List<UniqueTxosmp1> getModuleCaseofOrder (@Param("importCompany") String importCompany,
+											  @Param("exportCompany") String exportCompany,
+											  @Param("itemNo") int itemNo,
+											  @Param("orderNo") String orderNo);
+	
+	@Query(value ="UPDATE XO.TXOSMP1 SMP1 "+
+			  "	  SET    SMP1.ship_no = :shipNo "+			  
+			  "	  WHERE  SMP1.module_case_number = :moduleCaseNumber " +
+			  "   AND    SMP1.IMPORT_COMPANY     = :importCompany "+ 
+			  "   AND	 SMP1.EXPORT_COMPANY     = :exportCompany "+ 
+			  "   AND	 SMP1.ORDER_NO		      = :orderNo "+
+			  "   AND	 SMP1.ITEM_NO            = :itemNo ",nativeQuery=true)
+	public void updateTxosmp1ShipNo (@Param("moduleCaseNumber") String moduleCaseNumber,
+									 @Param("importCompany") String importCompany,
+									 @Param("exportCompany") String exportCompany,
+									 @Param("orderNo") String orderNo,
+									 @Param("itemNo") int itemNo,
+									 @Param("shipNo") String shipNo);
+	
+	
+	
+	@Query(value ="DELETE	FROM XO.TXOSMP1 "+
+				  "WHERE	(IMPORT_COMPANY, EXPORT_COMPANY, ORDER_NO, ITEM_NO, SHIP_NO) IN ( "+
+				  "																			SELECT 	IMPORT_COMPANY, "+
+			  	  "																					EXPORT_COMPANY, "+
+			  	  "																					ORDER_NO, "+
+			  	  "																					ITEM_NO, "+
+			  	  "																					SHIP_NO "+
+			  	  "																			FROM 	XO.TXOSSD1 SSD1 "+
+			  	  "																			WHERE	SSD1.IMPORT_COMPANY     = :importCompany "+
+			  	  "																			AND		SSD1.EXPORT_COMPANY     = :exportCompany "+
+			  	  "																			AND   	SSD1.VESSEL_CODE        = :vesselCode "+
+			  	  "																			AND   	SSD1.DEPART_DATE        = :departDate "+
+			  	  "																			AND   	SSD1.PORT_OF_DEPARTURE  = :portOfDeparture "+
+			  	  "																			AND   	SSD1.ARRIVAL_DATE       = :arrivalDate "+
+			  	  "																			AND   	SSD1.PORT_OF_ARRIVAL    = :portOfArrival "+
+			  	  "																			AND   	SSD1.ALLOCATION_FLAG    = :'Y' "+ 
+			  	  "																			AND   	SSD1.PACK_SCHED_FLAG    = 'N' ",
+		 nativeQuery=true)
+	public void removePackagePlan(  @Param("importCompany") 	String importCompany,
+			   						@Param("exportCompany") 	String exportCompany,
+			   						 @Param("vesselCode") 		String vesselCode,
+			   						 @Param("departDate") 		String departDate,
+			   						 @Param("portOfDeparture") 	String portOfDeparture,
+			   						 @Param("arrivalDate") 		String arrivalDate,
+			   						 @Param("portOfArrival") 	String portOfArrival);
+	
+	@Query(value ="SELECT MODULE_CASE_NUMBER FROM XO.TXOSMP1 "+
+				  "WHERE	(IMPORT_COMPANY, EXPORT_COMPANY, ORDER_NO, ITEM_NO, SHIP_NO) IN ( "+
+				  "																			SELECT 	IMPORT_COMPANY, "+
+			  	  "																					EXPORT_COMPANY, "+
+			  	  "																					ORDER_NO, "+
+			  	  "																					ITEM_NO, "+
+			  	  "																					SHIP_NO "+
+			  	  "																			FROM 	XO.TXOSSD1 SSD1 "+
+			  	  "																			WHERE	SSD1.IMPORT_COMPANY     = :importCompany "+
+			  	  "																			AND		SSD1.EXPORT_COMPANY     = :exportCompany "+
+			  	  "																			AND   	SSD1.VESSEL_CODE        = :vesselCode "+
+			  	  "																			AND   	SSD1.DEPART_DATE        = :departDate "+
+			  	  "																			AND   	SSD1.PORT_OF_DEPARTURE  = :portOfDeparture "+
+			  	  "																			AND   	SSD1.ARRIVAL_DATE       = :arrivalDate "+
+			  	  "																			AND   	SSD1.PORT_OF_ARRIVAL    = :portOfArrival "+
+			  	  "																			AND   	SSD1.ALLOCATION_FLAG    = :'Y' "+ 
+			  	  "																			AND   	SSD1.PACK_SCHED_FLAG    = 'N' ",
+	 nativeQuery=true)
+	public List<String> gettingModuleCaseforDeletion(	@Param("importCompany") 	String importCompany,
+		   										@Param("exportCompany") 	String exportCompany,
+		   										@Param("vesselCode") 		String vesselCode,
+		   										@Param("departDate") 		String departDate,
+		   										@Param("portOfDeparture") 	String portOfDeparture,
+		   										@Param("arrivalDate") 		String arrivalDate,
+		   										@Param("portOfArrival") 	String portOfArrival);	
+	
+	
+	
+}

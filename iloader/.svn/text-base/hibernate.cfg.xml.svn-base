@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory name="">
+  <property name="hibernate.connection.driver_class">com.ibm.db2.jcc.DB2Driver</property>
+  <property name="hibernate.connection.password">maldarx8</property>
+  <property name="hibernate.connection.url">jdbc:db2://humb:7010/HUMDD001</property>
+  <property name="hibernate.connection.username">humap10</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.DB2390Dialect</property>
+  <property name="hibernate.connection.autocommit">true</property>
+ </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,22 @@
+package com.honda.eu.hum.reversekd.dto;
+
+public class UniqueTxossd1 {
+	String orderNo;
+	int itemNo;
+	
+	
+	public String getOrderNo() {
+		return orderNo;
+	}
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
+	}
+	public int getItemNo() {
+		return itemNo;
+	}
+	public void setItemNo(int itemNo) {
+		this.itemNo = itemNo;
+	}
+	
+	
+}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+	http://www.springframework.org/schema/security
+ 	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+ 	
+  
+  	<!-- to enable the /login page to be outside the security -->
+ 	<http  entry-point-ref="restAuthenticationEntryPoint" security="none" pattern="/login" />
+ 
+ 
+ 	<!-- entry-point-ref="restAuthenticationEntryPoint" is added to return 401 instead of login page when user is not authenticated -->
+	<http  entry-point-ref="restAuthenticationEntryPoint" use-expressions="true" >
+	
+		<intercept-url pattern="/service/**" access="hasRole('HUM_RKD_User')" />
+		<intercept-url pattern="/**" access="hasRole('HUM_RKD_User')"    />
+		
+		<form-login 
+				login-page="/login" 
+				default-target-url="/pages/user/index.html" 
+				authentication-failure-url="/login?error"
+				always-use-default-target="true"
+				username-parameter="username"
+				password-parameter="password"				
+		/>
+	
+		<logout logout-success-url="/login?logout"  />
+		
+	</http>
+	
+	<!-- entry-point-ref="restAuthenticationEntryPoint" is added to return 401 instead of login page when user is not authenticated -->
+	<beans:bean id="restAuthenticationEntryPoint" class="com.honda.eu.hum.reversekd.security.RestAuthenticationEntryPoint" />
+	
+	
+	<!-- the redirection removal is not needed ????  -->
+	<!--	
+		<beans:bean id="mySuccessHandler" class="com.honda.eu.hum.reversekd.security.MySavedRequestAwareAuthenticationSuccessHandler"/>
+	-->
+ 	<!-- the redirection removal is not needed ????  -->
+
+
+
+
+ 	
+ 	
+ 	<!-- TODO: IMPLEMENT here the active dir authentication
+ 	
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider>
+			<user-service>
+				<user name="yasser" password="yasser" authorities="ROLE_ADMIN" />				
+				<user name="irfan" password="irfan" authorities="ROLE_ADMIN" />
+				<user name="user" password="user" authorities="ROLE_USER" />
+			</user-service>
+		</authentication-provider>
+	</authentication-manager>
+	
+	 -->
+	
+	
+	<!-- 
+	  groupBase  OU=Groups,OU=Groups,OU=HUM,DC=hum,DC=eu,DC=honda,DC=com       
+    host  ldap://hum.eu.honda.com:389       
+    password  +++++++++++      
+    searchBase  OU=Users,OU=HUM,DC=hum,DC=eu,DC=honda,DC=com       
+    username  humconsWebsphereTest       
+    usernamePostFix  @hum.eu.honda.com    
+	
+	///EUMNT
+	
+	        <beans:property name="authoritiesMapper" ref="grantedAuthoritiesMapper" />
+	        <beans:property name="useAuthenticationRequestCredentials" value="true" />
+
+	    <beans:bean id="grantedAuthoritiesMapper" class="net.comdynamics.orbiks.security.ActiveDirectoryGrantedAuthoritiesMapper"/>	
+	
+	 -->
+	
+	
+	
+	 <!-- LDAP server details -->
+    <authentication-manager>
+	        <authentication-provider ref="ldapActiveDirectoryAuthProvider" />
+    </authentication-manager>
+	 
+
+	 
+	    <beans:bean id="ldapActiveDirectoryAuthProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+	        <beans:constructor-arg value="hum.eu.honda.com" />
+	        <beans:constructor-arg value="ldap://hum.eu.honda.com:389/" />
+	        <beans:property name="useAuthenticationRequestCredentials" value="true" />
+	        <beans:property name="convertSubErrorCodesToExceptions" value="true" />
+	    </beans:bean>
+	
+	
+	
+	
+	
+	
+ 
+</beans:beans>

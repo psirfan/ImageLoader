@@ -1,0 +1,16 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+import com.honda.eu.hum.reversekd.dto.Table;
+  
+  
+public interface Txovsc1Repository extends JpaRepository<Txovsc1, String> 
+{
+	@Query(value = "select VESSEL_CODE as Key, VESSEL_NAME as Value from XO.TXOVSC1 order by VESSEL_NAME",nativeQuery=true)
+	public List<Table> findAllVesselsIDName();
+}

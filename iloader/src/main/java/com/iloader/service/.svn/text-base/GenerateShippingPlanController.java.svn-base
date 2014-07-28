@@ -1,0 +1,410 @@
+package com.honda.eu.hum.reversekd.service;
+
+
+
+
+import java.util.Date;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.honda.eu.hum.reversekd.bo.GenerateShippingPlan;
+import com.honda.eu.hum.reversekd.dao.Txoepn1;
+import com.honda.eu.hum.reversekd.dao.Txosmp1;
+import com.honda.eu.hum.reversekd.dao.Txosmp1Id;
+import com.honda.eu.hum.reversekd.dao.Txossd1;
+import com.honda.eu.hum.reversekd.dao.Txossd1Id;
+import com.honda.eu.hum.reversekd.dao.Txossm1;
+import com.honda.eu.hum.reversekd.dto.ShippinggeneratePlan;
+import com.honda.eu.hum.reversekd.dto.UniqueTxosmp1;
+import com.honda.eu.hum.reversekd.dto.UniqueTxossd1;
+
+
+
+
+@Controller
+@EnableTransactionManagement  
+public class GenerateShippingPlanController {
+	
+	@Autowired
+	GenerateShippingPlan generateShippingPlan;	
+
+	 @RequestMapping(value= "/getGridDataForAllGSP", method = RequestMethod.GET)
+	 public @ResponseBody  ServiceResponse getGridDataForAllGSP() {
+		 	ServiceResponse sr = new ServiceResponse();
+		 	List<ShippinggeneratePlan> result = generateShippingPlan.getGridDataAll('N');		
+			ShippinggeneratePlan resultArray[] = new ShippinggeneratePlan[result.size()];
+				 	
+				 	int count = 0;
+			     	for ( Object o : result)
+			     	{
+			     		Object[] spgObject = (Object[]) o;
+			     		ShippinggeneratePlan spg = new ShippinggeneratePlan();
+			     		spg.setVesselCode(spgObject[0].toString());
+			     		spg.setVesselName(spgObject[1].toString());
+			     		spg.setDepartureDate(spgObject[2].toString());
+			     		spg.setPortofDeparture(spgObject[3].toString());
+			     		spg.setArrivalDate(spgObject[4].toString());
+			     		spg.setPortofArrival(spgObject[5].toString());
+			     		spg.setShippingLine(spgObject[6].toString());	     		
+			     		spg.setImportCompany(spgObject[7].toString());
+			     		spg.setExportCompany(spgObject[8].toString());
+			     		spg.setId(count);
+			     		resultArray[count] = spg;
+			     		count++;
+			     	}
+			     	
+			     	
+			     	sr.setMessage("Processed successfully");
+			    	sr.setReturnCode(1);
+			    	sr.setReturnedValues(resultArray);		    		
+			
+		 	return sr;   
+	 }
+	
+	
+	
+	 @RequestMapping(value= "/getGridDataForGSP", method = RequestMethod.GET)
+	 public @ResponseBody  ServiceResponse getGridDataForGSP(
+	    		@RequestParam(value="importCompany", required=false, defaultValue="importCompany") String importCompany,
+				@RequestParam(value="exportCompany", required=false, defaultValue="exportCompany") String exportCompany
+	    		){
+		 	ServiceResponse sr = new ServiceResponse();
+		 	List<ShippinggeneratePlan> result = generateShippingPlan.getGridData(importCompany, exportCompany,'Y');	
+		 	if (result!=null){
+				 	ShippinggeneratePlan resultArray[] = new ShippinggeneratePlan[result.size()];
+				 	
+				 	int count = 0;
+			     	for ( Object o : result)
+			     	{
+			     		Object[] spgObject = (Object[]) o;
+			     		ShippinggeneratePlan spg = new ShippinggeneratePlan();
+			     		spg.setVesselCode(spgObject[0].toString());
+			     		spg.setVesselName(spgObject[1].toString());
+			     		spg.setDepartureDate(spgObject[2].toString());
+			     		spg.setPortofDeparture(spgObject[3].toString());
+			     		spg.setArrivalDate(spgObject[4].toString());
+			     		spg.setPortofArrival(spgObject[5].toString());
+			     		spg.setShippingLine(spgObject[6].toString());	     		
+			     		spg.setImportCompany(spgObject[7].toString());
+			     		spg.setExportCompany(spgObject[8].toString());
+			     		spg.setId(count);
+			     		resultArray[count] = spg;
+			     		count++;
+			     	}
+			     	
+			     	
+			     	sr.setMessage("Processed successfully");
+			    	sr.setReturnCode(1);
+			    	sr.setReturnedValues(resultArray);
+			    		
+			}else{
+				sr.setMessage("No Data Found for this import and export company");
+		    	sr.setReturnCode(1);
+		    	sr.setReturnedValues(null);
+			}
+		 	
+		 	return sr;	
+   
+	 }
+	 
+	 
+	 	@RequestMapping(value= "/processDataGSP", method = RequestMethod.POST,  headers="Accept=application/xml, application/json")
+	    public @ResponseBody  String processDataGSP(@RequestBody ShippinggeneratePlan[] shippinggeneratePlan,
+	    											@RequestParam(value="exportCompany", required=false, defaultValue="exportCompany") String exportCompany) {
+	 	
+		 	
+
+		 	//Getting Hum plant code
+		 	char PlantCode = generateShippingPlan.getPlantCode(exportCompany);
+		 	
+		 	//First part of functional from point 1 to 6
+		 	for(ShippinggeneratePlan shippinggeneratePlanns : shippinggeneratePlan){
+		 		//Starting process to Update Data
+		 		generateShippingPlan.processData(shippinggeneratePlanns.getImportCompany(), 
+		 										 shippinggeneratePlanns.getExportCompany(),
+		 										 shippinggeneratePlanns.getVesselCode(), 
+		 										 shippinggeneratePlanns.getDepartureDate(), 
+		 										 shippinggeneratePlanns.getPortofDeparture(), 
+		 										 shippinggeneratePlanns.getArrivalDate(), 
+		 										 shippinggeneratePlanns.getPortofArrival(), 
+		 										 PlantCode);
+		 		
+		 	
+		 	}	 	
+		 	
+		 	//Second part of functional from point 7 to 12		 	
+		 	for(ShippinggeneratePlan shippinggeneratePlanns : shippinggeneratePlan){
+		 		List<Txossd1> txossd1 = generateShippingPlan.findpartNumbers(shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),
+						 													 shippinggeneratePlanns.getVesselCode(),   shippinggeneratePlanns.getDepartureDate(),
+						 													 shippinggeneratePlanns.getPortofDeparture(),shippinggeneratePlanns.getArrivalDate(), 
+						 													 shippinggeneratePlanns.getPortofArrival());
+		 		String partNumber = "", orderNo = "", moduleCase = "";		 		
+		 		short numInModuleCase = 0, planpackseq = 0, remainingQty  = 0;
+		 		boolean chaneRecord = true;
+		 		Txossm1 txossm1 = null;
+		 		
+		 		
+		 		
+		 		for (Txossd1 txossd1list : txossd1) {		 			
+		 			
+		 			//getting system variable value CASE_PACK_OFFSET
+				 	String planPackDate = generateShippingPlan.getPackPlanDate(PlantCode,txossd1list.getShipToPortDate());
+				 	Txoepn1 txoepn1 	= generateShippingPlan.gettingTxoepn1(txossd1list.getPartNumber());
+				 	short orderQty  	= (short)txossd1list.getOrderQty();
+				 	
+				 	
+				 	if(chaneRecord==true || partNumber!=txossd1list.getPartNumber() || remainingQty < 1 || orderNo != txossd1list.getId().getOrderNo()){
+				 			numInModuleCase  	= txoepn1.getNumInModuleCase();
+						 	if (orderQty > numInModuleCase){
+						 		short loopRound = (short) (orderQty/numInModuleCase);
+						 		short remainder = (short) (orderQty % numInModuleCase);
+						 		
+						 		
+						 		remainingQty=numInModuleCase;	
+						 		
+						 		planpackseq = generateShippingPlan.gettingSequenceforPPD(planPackDate);
+						 		
+						 		if (remainder > 0){
+						 			for (int i =1; i<=loopRound; i++){
+							 			planpackseq = (short) (planpackseq + 1);
+							 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+								 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+								 		generateShippingPlan.SaveTxossm1(txossm1);
+								 		
+								 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+								 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), numInModuleCase,"USER1", new Date());
+									 	generateShippingPlan.SaveTxosmp1(txosmp1);
+							 		}
+						 			planpackseq = (short) (planpackseq + 1);
+						 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+							 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+							 		generateShippingPlan.SaveTxossm1(txossm1);
+							 		
+							 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+							 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), remainder,"USER1", new Date());
+								 	generateShippingPlan.SaveTxosmp1(txosmp1);
+								 	
+								 	remainingQty = (short) (numInModuleCase  - remainder);						 	
+								 	
+						 		}else{
+						 			for (int i =1; i<=loopRound; i++){
+							 			planpackseq = (short) (planpackseq + 1);
+							 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+								 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+								 		generateShippingPlan.SaveTxossm1(txossm1);
+								 		
+								 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+								 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), numInModuleCase,"USER1", new Date());
+									 	generateShippingPlan.SaveTxosmp1(txosmp1);
+							 		}
+						 			
+						 		}						 	
+							 	
+						 	  }else{
+						 		  	planpackseq = (short) (planpackseq + 1);
+						 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+							 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+							 		generateShippingPlan.SaveTxossm1(txossm1);
+							 		
+							 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+							 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), (short)txossd1list.getOrderQty(),"USER1", new Date());
+								 	generateShippingPlan.SaveTxosmp1(txosmp1);
+								 	
+								 	remainingQty = (short) (numInModuleCase  - txossd1list.getShipQty());	
+						 	  }
+						//No module cae change 
+				 		} else{
+							 if (orderQty > remainingQty){
+							 		
+								 short loopRound = (short) (orderQty/numInModuleCase);
+							 	 short remainder = (short) (orderQty % numInModuleCase);
+							 		
+							 		planpackseq = generateShippingPlan.gettingSequenceforPPD(planPackDate);
+							 	
+							 		if (remainder > 0){
+							 			for (int i =1; i<=loopRound; i++){
+								 			planpackseq = (short) (planpackseq + 1);
+								 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+									 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+									 		generateShippingPlan.SaveTxossm1(txossm1);
+									 		
+									 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+									 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), remainingQty,"USER1", new Date());
+										 	generateShippingPlan.SaveTxosmp1(txosmp1);
+								 		}
+							 			planpackseq = (short) (planpackseq + 1);
+							 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+								 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+								 		generateShippingPlan.SaveTxossm1(txossm1);
+								 		
+								 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+								 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), remainder,"USER1", new Date());
+									 	generateShippingPlan.SaveTxosmp1(txosmp1);
+									 	
+									 	remainingQty = (short) (numInModuleCase  - remainder);						 	
+									 	
+							 		}else{
+							 			for (int i =1; i<=loopRound; i++){
+								 			planpackseq = (short) (planpackseq + 1);
+								 			moduleCase = generateShippingPlan.generatingModuleCase(PlantCode,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),txossd1list.getId().getOrderNo(),txoepn1.getCaseSize(),planpackseq);
+									 		txossm1 = new Txossm1(moduleCase,new Date(),planpackseq, new Date(), planpackseq,txoepn1.getCaseSize(),txoepn1.getCaseHeight(),'N',"User1",new Date());
+									 		generateShippingPlan.SaveTxossm1(txossm1);
+									 		
+									 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+									 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), numInModuleCase,"USER1", new Date());
+										 	generateShippingPlan.SaveTxosmp1(txosmp1);
+								 		}
+							 		}						 	
+								 	
+							 	  }else{
+								 		Txosmp1Id txosmp1Id = new Txosmp1Id(moduleCase,shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),	txossd1list.getId().getOrderNo(),txossd1list.getId().getItemNo(), txossd1list.getId().getShipNo());
+								 		Txosmp1   txosmp1 	= new Txosmp1(txosmp1Id,txossm1,txossd1list,txossd1list.getPartNumber(), txossd1list.getPartColour(), (short)txossd1list.getOrderQty(),"USER1", new Date());
+									 	generateShippingPlan.SaveTxosmp1(txosmp1);
+									 	
+									 	remainingQty = (short) (remainingQty  - txossd1list.getShipQty());	
+							 	  }
+						 }
+				 		
+		 		}
+		 		
+		 		List<UniqueTxossd1> UniqueOrder  = generateShippingPlan.getUniqueOrder(shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),
+						 														 shippinggeneratePlanns.getVesselCode(),   shippinggeneratePlanns.getDepartureDate(),
+						 														 shippinggeneratePlanns.getPortofDeparture(),shippinggeneratePlanns.getArrivalDate(), 
+						 														 shippinggeneratePlanns.getPortofArrival());
+		 		
+		 		//Loop for unique order in Txossd1
+		 		for (UniqueTxossd1 uniqueOrder : UniqueOrder){		 			
+		 			//getting if one order have more than one Module case
+		 			List<UniqueTxosmp1> uniqueModule = generateShippingPlan.getUniqueTxosmp1(shippinggeneratePlanns.getImportCompany(), shippinggeneratePlanns.getExportCompany(),uniqueOrder.getItemNo(),uniqueOrder.getOrderNo());
+		 			int shipNo = 0;
+		 			for(UniqueTxosmp1 uM : uniqueModule){
+			 			if 	(uniqueModule.size() <= 1){
+			 				generateShippingPlan.updateShipNo(	shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),
+			 													shippinggeneratePlanns.getVesselCode(),   shippinggeneratePlanns.getDepartureDate(),
+			 													shippinggeneratePlanns.getPortofDeparture(),shippinggeneratePlanns.getArrivalDate(), 
+			 													shippinggeneratePlanns.getPortofArrival(),uniqueOrder.getOrderNo(),String.format("%02d", shipNo),uM.getItemNo());
+			 				generateShippingPlan.updateTxosmp1ShipNo(uM.getModuleCase(), shippinggeneratePlanns.getImportCompany(), shippinggeneratePlanns.getExportCompany(),
+			 												 		 uniqueOrder.getOrderNo(),uM.getItemNo(),String.format("%02d", shipNo));
+			 			}else{
+			 				generateShippingPlan.updateShipNo(	shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),
+										shippinggeneratePlanns.getVesselCode(),   shippinggeneratePlanns.getDepartureDate(),
+										shippinggeneratePlanns.getPortofDeparture(),shippinggeneratePlanns.getArrivalDate(), 
+										shippinggeneratePlanns.getPortofArrival(),uniqueOrder.getOrderNo(),String.format("%02d", shipNo),uM.getItemNo());
+			 				generateShippingPlan.updateTxosmp1ShipNo(uM.getModuleCase(), shippinggeneratePlanns.getImportCompany(), shippinggeneratePlanns.getExportCompany(),
+							 		 uniqueOrder.getOrderNo(),uM.getItemNo(),String.format("%02d", shipNo));
+			 				
+			 				if (shipNo > 1){
+			 					Txossd1 txossd11  = generateShippingPlan.findRecordinTxossd1(shippinggeneratePlanns.getImportCompany(),shippinggeneratePlanns.getExportCompany(),uniqueOrder.getOrderNo(), uM.getItemNo(),"");			 				
+			 					generateShippingPlan.cloneTxossd1(txossd11,String.format("%02d", shipNo));
+			 					
+			 				}
+			 			}			 			
+			 			shipNo++;
+		 			}
+		 		}
+		 	}
+		 	return "SuccessFul";	
+
+	 }	 
+@RequestMapping(value= "/showPackingPlan", method = RequestMethod.GET)
+ public @ResponseBody  ServiceResponse showPackingPlan(
+		    		@RequestParam(value="importCompany", required=false, defaultValue="importCompany") String importCompany,
+					@RequestParam(value="exportCompany", required=false, defaultValue="exportCompany") String exportCompany
+		    		){
+			 	ServiceResponse sr = new ServiceResponse();
+			 	List<ShippinggeneratePlan> result = generateShippingPlan.getGridData(importCompany, exportCompany, 'Y');	
+			 	if (result!=null){
+					 	ShippinggeneratePlan resultArray[] = new ShippinggeneratePlan[result.size()];
+					 	
+					 	int count = 0;
+				     	for ( Object o : result)
+				     	{
+				     		Object[] spgObject = (Object[]) o;
+				     		ShippinggeneratePlan spg = new ShippinggeneratePlan();
+				     		spg.setVesselCode(spgObject[0].toString());
+				     		spg.setVesselName(spgObject[1].toString());
+				     		spg.setDepartureDate(spgObject[2].toString());
+				     		spg.setPortofDeparture(spgObject[3].toString());
+				     		spg.setArrivalDate(spgObject[4].toString());
+				     		spg.setPortofArrival(spgObject[5].toString());
+				     		spg.setShippingLine(spgObject[6].toString());	     		
+				     		spg.setImportCompany(spgObject[7].toString());
+				     		spg.setExportCompany(spgObject[8].toString());
+				     		spg.setId(count);
+				     		resultArray[count] = spg;
+				     		count++;
+				     	}
+				     	
+				     	
+				     	sr.setMessage("Processed successfully");
+				    	sr.setReturnCode(1);
+				    	sr.setReturnedValues(resultArray);
+				    		
+				}else{
+					sr.setMessage("No Data Found for this import and export company");
+			    	sr.setReturnCode(1);
+			    	sr.setReturnedValues(null);
+				}
+			 	
+			 	return sr;	
+	   
+		 }
+@RequestMapping(value= "/removePackingPlan", method = RequestMethod.GET)
+public @ResponseBody  ServiceResponse removePackingPlan(@RequestBody ShippinggeneratePlan[] shippinggeneratePlan,
+														@RequestParam(value="exportCompany", required=false, defaultValue="exportCompany") String exportCompany,
+														@RequestParam(value="importCompany", required=false, defaultValue="importCompany") String importCompany){
+	
+	
+	for(ShippinggeneratePlan shippinggeneratePlanns : shippinggeneratePlan){
+ 		//Starting process to Update Data
+		generateShippingPlan.removePackagePlan(shippinggeneratePlanns.getImportCompany(), 
+ 										 shippinggeneratePlanns.getExportCompany(),
+ 										 shippinggeneratePlanns.getVesselCode(), 
+ 										 shippinggeneratePlanns.getDepartureDate(), 
+ 										 shippinggeneratePlanns.getPortofDeparture(), 
+ 										 shippinggeneratePlanns.getArrivalDate(), 
+ 										 shippinggeneratePlanns.getPortofArrival());
+ 		
+ 	
+ 	}	
+				
+	ServiceResponse sr = new ServiceResponse();
+	List<ShippinggeneratePlan> result = generateShippingPlan.getGridData(importCompany, exportCompany, 'Y');	
+	if (result!=null){
+			ShippinggeneratePlan resultArray[] = new ShippinggeneratePlan[result.size()];
+		 	int count = 0;
+	     	for ( Object o : result){
+				Object[] spgObject = (Object[]) o;
+				ShippinggeneratePlan spg = new ShippinggeneratePlan();
+				spg.setVesselCode(spgObject[0].toString());
+				spg.setVesselName(spgObject[1].toString());
+				spg.setDepartureDate(spgObject[2].toString());
+				spg.setPortofDeparture(spgObject[3].toString());
+				spg.setArrivalDate(spgObject[4].toString());
+				spg.setPortofArrival(spgObject[5].toString());
+				spg.setShippingLine(spgObject[6].toString());	     		
+				spg.setImportCompany(spgObject[7].toString());
+				spg.setExportCompany(spgObject[8].toString());
+				spg.setId(count);
+				resultArray[count] = spg;
+				count++;
+		 	}
+	     	sr.setMessage("Processed successfully");
+			sr.setReturnCode(1);
+			sr.setReturnedValues(resultArray);				    		
+	}else{
+		sr.setMessage("No Data Found for this import and export company");
+	   	sr.setReturnCode(1);
+	  	sr.setReturnedValues(null);
+	}
+			 	
+	return sr;	
+ }
+	 
+}

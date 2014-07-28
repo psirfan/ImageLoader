@@ -1,0 +1,59 @@
+package com.honda.eu.hum.reversekd.service;
+
+/*  
+ * 
+ * User login credentials 
+ * 
+ * 
+ */ 
+
+public class Login {
+
+    private long id = -1 ;
+    private String user = null;
+    private String name = null;
+    private String role = null;
+    
+    public Login()
+    {
+    	
+    }
+    
+    public Login(long iId, String iUser, String iName, String iRole)
+    {
+    	id = iId;
+    	user = iUser;
+    	name = iName;
+    	role = iRole;
+    }
+    
+	public long getId() {
+		return id;
+	}
+	public String getUser() {
+		return user;
+	}
+	public String getName() {
+		return name;
+	}
+	public String getRole() {
+		return role;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+}

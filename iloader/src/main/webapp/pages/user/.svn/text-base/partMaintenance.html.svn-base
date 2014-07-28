@@ -1,0 +1,330 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"type="text/css">
+
+<script language="javascript">
+
+/*
+function restoreLink(){
+		
+		var grid = $("#partMaintenanceGrid");
+		var selectedRowId = grid.jqGrid ('getGridParam', 'selrow');
+		var partNumber = grid.jqGrid('getCell', selectedRowId, 'partNumber');
+		
+		if(partNumber == false){			
+			alert("Please select a Part Number first to restore.");
+			//$("#restorePartId").href = "";			
+			//return false;
+		}else{
+			//sharedProperties.setProperty(partNumber);
+			
+			//$location.url('/ReverseKDWebApp/pages/user/index.html#/restorePart/');
+			//return true;
+			 //location.href = "/ReverseKDWebApp/pages/user/index.html#/restorePart/";
+			//window.location.replace("/ReverseKDWebApp/pages/user/index.html#/restorePart/");
+			//$(location).attr('href',"/ReverseKDWebApp/pages/user/index.html#/restorePart/");
+		}
+	}
+
+		*/
+</script>
+
+	<div class="main" align="center" ng-controller="PartMaintenanceController"  >
+		
+		<h2>Part Maintenance</h2>
+		
+		
+		<table id="partMaintenanceGrid"   />
+		
+		<div id="buttonsDivId" style="margin: 20px;">
+		
+			<a id="restorePartId" href='#restorePart'  >
+				<button ng-click="restorePart()" class="button" id="restorePartBtnId" style="margin-left: 5px;" >
+					Restore Part
+				</button>
+			</a>
+		
+		
+			<button class="button" ng-click="deletePart()" id="deletePartBtnId" style="margin-left: 5px;" >
+				Delete Part
+			</button>
+		
+		
+			<button class="button" ng-click="editPart()" id="editPartBtnId" style="margin-left: 5px;" >
+				Edit Part
+			</button>
+		
+			<button class="button" ng-click="showAddForm()" id="addNewBtnId" style="margin-left: 5px;" >
+				Add New Part
+			</button>
+			
+		</div>
+		
+		<form name='addPartForm' class="ng-pristine ng-invalid ng-invalid-required" novalidate >
+		<div id="showAddForm" ng-show='showAdd' align="center"  style="margin-top: 15px; width: 60%;"  class="divBorderClass" >
+		
+		<div style="background-color: cyan; float: left; width:100%; font-weight:bold; color:black;">{{operationDesc}}</div>
+		
+		
+		
+			<table style=""  border="0"  >
+			
+			
+				<tr height="30px">
+				</tr>
+			
+			
+				<tr height="50px">
+					<td style="text-align: right; vertical-align:top; " >
+						Part Number
+						<p ng-show="submitted && addPartForm.partNumber.$invalid" class="help-block">&zwnj;</p>
+					</td>
+					<td colspan="4" style="text-align: left; vertical-align:top; " >						
+						<input type="text" name="partNumber" id="partNumber" ng-model="part.partNumber"  size="25" maxlength="18" required ng-readonly="part.action == 'update'" />
+						<p ng-show="submitted && addPartForm.partNumber.$invalid" class="help-block">Part Number is required.</p>
+						
+					</td>
+				</tr>
+				
+				<tr height="50px">
+					<td style="text-align: right;vertical-align:top;">
+						Unit Type												
+					</td>
+					
+					<td style="text-align: left; vertical-align:top; " >		
+						<select id="unitType" ng-model="part.unitType" name="unitType" required >
+						
+							<option ng-repeat="dd in unitTypeDD"  value={{dd.value}}>
+								{{dd.name}}
+							</option>								
+
+						</select>						
+						<p ng-show="submitted && addPartForm.unitType.$error.required" class="help-block">please provide value</p>
+						
+						
+					</td>
+					<td style="text-align: right; vertical-align:top; " >
+						Part Description
+					</td>
+					<td colspan="4" style="text-align: left;vertical-align:top;" >
+						<input type="text" name="partDesc" ng-model="part.partDesc"  size="35" maxlength="30" required />
+						<p ng-show="submitted && addPartForm.partDesc.$invalid" class="help-block">please provide value</p>
+					</td>					
+				</tr>
+				
+				<tr height="50px">
+					<td style="text-align: right;vertical-align:top;">
+						Model Year
+					</td>
+					<td style="text-align: left;vertical-align:top;" >
+						<input type="text" name="modelYear" ng-model="part.modelYear" maxlength="1" size="3" required />
+						<p ng-show="submitted && addPartForm.modelYear.$invalid" class="help-block">please provide value</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Model
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="text" name="model" ng-model="part.model" maxlength="3" size="5" required />
+						<p ng-show="submitted && addPartForm.model.$invalid" class="help-block">please provide value</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Type
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="text" name="type" ng-model="part.type" maxlength="3" size="5" required />
+						<p ng-show="submitted && addPartForm.type.$invalid" class="help-block">please provide value</p>
+					</td>					
+					
+					<td style="text-align: right;vertical-align:top;">
+						Option
+					</td>
+					<td style="text-align: left;vertical-align:top;" >
+						<input type="text" name="option" ng-model="part.option" maxlength="3" size="5" required />
+						<p ng-show="submitted && addPartForm.option.$invalid" class="help-block">please provide value</p>
+					</td>	
+					
+				</tr>		
+				
+				<tr height="50px" style="vertical-align: top;  text-align: left;" >
+					<td style="text-align: right;vertical-align:top;">
+						HUM Part Price
+					</td>
+					<td style="text-align: left;"> 
+						<input type="number" id="unitPriceHum" name="unitPriceHum" ng-model="part.unitPriceHum" maxlength="10" size="15"  min="0" max="9999999.99" required  ng-disabled="part.action == 'create'" ng-readonly="part.action != 'update'" />
+						<p ng-show="(!(part.action == 'create')) &&  submitted && addPartForm.unitPriceHum.$invalid" class="help-block">  must be between 0 and 9999999.99</p>
+					</td>					
+					
+					<td style="text-align: right;vertical-align:top;">
+						HME Part Price
+					</td>
+					<td style="text-align: left;">
+						<input type="number" name="unitPriceHme" ng-model="part.unitPriceHme" maxlength="10" size="15" min="0" max="9999999.99" required ng-disabled="part.action == 'create'" ng-readonly="part.action == 'create'"  />
+						<p ng-show=" (!(part.action == 'create')) && submitted && addPartForm.unitPriceHme.$invalid" class="help-block">  must be between 0 and 9999999.99</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						DCM Alias
+					</td>
+					<td style="text-align: left;">
+						<select id="dcmAlias" ng-model="part.dcmAlias" name="dcmAlias" required >
+						
+							<option ng-repeat="dd in dcmAliasDD"  value={{dd.value}}>
+								{{dd.name}}
+							</option>								
+
+						</select>
+						<p ng-show="submitted && addPartForm.dcmAlias.$invalid" class="help-block">please provide value</p>
+					</td>
+					
+				</tr>		
+				
+				
+				
+				
+				
+			
+				<tr height="50px">
+					<td style="text-align: right;vertical-align:top;">
+						Unit Weight
+					</td>
+					<td style="text-align: left;vertical-align:top;" >
+						<input type="number" name="unitWeight" ng-model="part.unitWeight" maxlength="7" size="10" min="0" max="999.999" required />
+						<p ng-show="submitted && addPartForm.unitWeight.$invalid" class="help-block">  must be between 0 and 999.999</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Case Weight
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="number" name="caseWeight" ng-model="part.caseWeight" maxlength="7" size="10" min="0" max="999.999" required />
+						<p ng-show="submitted && addPartForm.caseWeight.$invalid" class="help-block">  must be between 0 and 999.999</p>						
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Dunnage Weight
+					</td colspan="3">
+					<td style="text-align: left;vertical-align:top;">
+						<input type="number" name="dunnageWeight" ng-model="part.dunnageWeight" maxlength="7"  size="10" min="0" max="999.999" required />
+						<p ng-show="submitted && addPartForm.dunnageWeight.$invalid" class="help-block">  must be between 0 and 999.999</p>
+					</td>
+					
+				</tr>		
+								
+				
+				
+				<tr height="50px">
+					<td style="text-align: right;vertical-align:top;">
+						Case Size
+					</td>
+					<td style="text-align: left;vertical-align:top;vertical-align:top;" >
+					
+					<select ng-model="part.caseSize" name="caseSize" required >
+						
+							<option ng-repeat="dd in caseSizeDD"  value={{dd.value}}>
+								{{dd.name}}
+							</option>								
+
+						</select>
+						<p ng-show="submitted && addPartForm.caseSize.$invalid" class="help-block">please provide value</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Case Height
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="number" name="caseHeight" ng-model="part.caseHeight" maxlength="4" size="10" min="0" max="9999" required />
+						<p ng-show="submitted && addPartForm.caseHeight.$invalid" class="help-block">  must be between 0 and 9999</p>
+					</td>
+					<td style="text-align: right;vertical-align:top;">
+						Package Code
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="text" name="pkgCode" ng-model="part.pkgCode" maxlength="7" size="10" required />
+						<p ng-show="submitted && addPartForm.pkgCode.$invalid" class="help-block">please provide value</p>
+					</td>					
+				</tr>						
+				
+				
+				
+			
+				<tr height="60px" >
+					<td width="140px;" style="text-align: right;vertical-align:top;">
+						Number of Parts in Module Case
+					</td>
+					<td style="text-align: left;vertical-align:top;" >
+						<input type="number" name="numInModuleCase" ng-model="part.numInModuleCase" maxlength="4" size="10" min="0" max="9999" required />
+						<p ng-show="submitted && addPartForm.numInModuleCase.$invalid" class="help-block">  must be between 0 and 9999</p>
+					</td>
+					<td width="140px;" style="text-align: right;vertical-align:top;">
+						Number of Cases in Container
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input type="number" name="numCasesInCont" ng-model="part.numCasesInCont" maxlength="4" size="10" min="0" max="9999" number required />
+						<p ng-show="submitted && addPartForm.numCasesInCont.$error.required" class="help-block">please provide value</p>
+						<p ng-show="submitted && addPartForm.numCasesInCont.$error.max" class="help-block">  must be between 0 and 9999</p>
+						<p ng-show="submitted && addPartForm.numCasesInCont.$error.min" class="help-block">  must be between 0 and 9999</p>
+						<p ng-show="submitted && addPartForm.numCasesInCont.$error.number" class="help-block">  must be between 0 and 9999</p>
+					</td>					
+				</tr>
+				
+				
+				
+				<tr height="50px">
+					<td width="140px;"  style="text-align: right;vertical-align:top;">
+						User Id Last Updated 
+					</td>
+					<td style="text-align: left;vertical-align:top;" >
+						<input style="background: grey" type="text" name="userid" ng-model="part.userid" size="30" readonly="readonly" disabled="disabled" />						
+					</td>
+					<td width="140px;" style="text-align: right;vertical-align:top;">
+						Date Last Updated
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input style="background: grey" type="text" name="tstampStr" ng-model="part.tstampStr" size="35" readonly="readonly" disabled="disabled" />
+					</td>					
+				</tr>						
+								
+								
+				<tr height="50px">
+					<td width="140px;" style="text-align: right;vertical-align:top;">
+					  User Id Created
+					</td>
+					<td style="text-align: left;vertical-align:top;"  >
+						<input style="background: grey" type="text" name="userid" ng-model="part.userid"  size="30" readonly="readonly" disabled="disabled" />						
+					</td>
+					<td width="140px;" style="text-align: right;vertical-align:top;">
+						Date Created
+					</td>
+					<td style="text-align: left;vertical-align:top;">
+						<input style="background: grey" type="text" name="createdTstampStr" ng-model="part.createdTstampStr" size="35" readonly="readonly" disabled="disabled" />
+					</td>					
+				</tr>											
+										
+								
+			<tr height="10px">
+			</tr>							
+								
+				
+								
+			</table>
+			
+				<div id="buttonsDivId" style="margin: 20px;">
+			
+					<button id="closeButtonId" class="button" style=" margin-left: 500px;"  type="button" ng-click="showAdd=false" >Close</button>				
+				
+					<button id="submitButtonId"  class="button" style="float: right; margin-right: 40px;" type="submit" ng-click="savePart()" >Save</button>
+				
+				</div>
+				
+		</div>
+
+	</form>
+	
+	
+	
+	
+		<div id="partAddedDialog" title="Message">
+			<p>
+				<span id="dialog-text"> </span>			
+			</p>
+		</div>			
+			
+	</div>
+
+		

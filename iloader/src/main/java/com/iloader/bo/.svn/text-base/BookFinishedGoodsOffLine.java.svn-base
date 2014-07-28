@@ -1,0 +1,103 @@
+package com.honda.eu.hum.reversekd.bo;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.honda.eu.hum.reversekd.dao.Txoepn1;
+import com.honda.eu.hum.reversekd.dao.Txoepn1Repository;
+import com.honda.eu.hum.reversekd.dao.Txosli1;
+import com.honda.eu.hum.reversekd.dao.Txosli1Id;
+import com.honda.eu.hum.reversekd.dao.Txosli1Repository;
+
+
+
+@Controller
+@EnableTransactionManagement
+
+public class BookFinishedGoodsOffLine {
+	
+	private static final Log log = LogFactory.getLog(BookFinishedGoodsOffLine.class);	
+	
+	@Resource  
+	private Txoepn1Repository txoepn1Repository;	
+	@Resource  
+	private Txosli1Repository txosli1Repository;
+	 
+	@Transactional
+	public boolean isExisitpartNumber(String PpartNumber){
+		
+		Txoepn1 txoepn1 = txoepn1Repository.findOne(PpartNumber);
+		if (txoepn1 != null)
+			return true;
+		else
+			return false;
+		
+	}
+    
+	@Transactional
+	public String getUnitType(String PpartNumber){
+		
+		Txoepn1 txoepn1 = txoepn1Repository.findOne(PpartNumber);		
+		return txoepn1.getUnitType();
+		
+	}
+	
+	@Transactional
+	public void updateTXOSLI1(String partNumber, String modeType, String machiningLot, int quantity){
+		
+		if (modeType.equals("Build Ahead"))   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"IN","BAH",machiningLot,"BKIN",quantity,"Y".charAt(0),"USERID",new Date()));
+	   	
+	   	if (modeType.equals("Direct to Warehouse"))   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"IN","WHS",machiningLot,"BKIN",quantity,"Y".charAt(0),"USERID",new Date()));
+	   	
+	   	if (modeType.equals("Build Ahead to Warehouse")){   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"IN","WHE",machiningLot,"XFER",quantity,"N".charAt(0),"USERID",new Date()));   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"OUT","BAH",machiningLot,"XFER",quantity,"N".charAt(0),"USERID",new Date()));
+	   	}
+	   	
+	   	if (modeType.equals("Engines"))  		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"IN","WHS",machiningLot,"BKIN",1,"N".charAt(0),"USERID",new Date()));
+		
+	}
+	
+	@Transactional
+	public int ExixtingQuantity(String partNumber, String reference, String QuantityType){
+		
+		int Qty = txosli1Repository.findByIDandReferenceQuantity(partNumber,reference,QuantityType);		
+		return Qty;
+	}
+	
+	@Transactional
+	public int ExixtingQuantityBATW(String partNumber, String reference, String QuantityType, String location){
+		
+		int Qty = txosli1Repository.findQuantityforBuilaheadtowarehouse(partNumber,reference,QuantityType,location);		
+		return Qty;
+	}
+	 
+	@Transactional
+	public void reverseTXOSLI1(String partNumber, String modeType, String machiningLot, int quantity){
+		
+		if (modeType.equals("Build Ahead"))   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"OUT","BAH",machiningLot,"BKIN",quantity,"Y".charAt(0),"USERID",new Date()));
+	   	
+	   	if (modeType.equals("Direct to Warehouse"))   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"OUT","WHS",machiningLot,"BKIN",quantity,"Y".charAt(0),"USERID",new Date()));
+	   	
+	   	if (modeType.equals("Build Ahead to Warehouse")){   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"OUT","WHE",machiningLot,"XFER",quantity,"N".charAt(0),"USERID",new Date()));   		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"IN","BAH",machiningLot,"XFER",quantity,"N".charAt(0),"USERID",new Date()));
+	   	}
+	   	
+	   	if (modeType.equals("Engines"))  		
+	   		txosli1Repository.save(new Txosli1(new Txosli1Id(partNumber,"",new Date()),"OUT","WHS",machiningLot,"BKIN",1,"N".charAt(0),"USERID",new Date()));
+		
+	}
+	
+}

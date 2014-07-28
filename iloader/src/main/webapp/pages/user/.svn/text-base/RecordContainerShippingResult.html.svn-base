@@ -1,0 +1,44 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="../../css/public/common.css">
+<LINK type="text/css" rel="stylesheet" href="../../css/public/global.css">
+ <head>
+ <style type="text/css"> .ui-jqgrid tr.jqgrow td { height: 30px; }</style>
+<title>RECORD CONTAINER SHIPPING RESULT</title>
+
+</head>
+<body>
+<div  id = "rcsrDiv" class="main" ng-controller="RecordContainerShippingResultController">	
+	<h2>RECORD CONTAINER SHIPPING RESULT</h2>
+	<div class="dataEntryPaneGSP">
+	<h4>Record Container Shipping Result</h4>	
+	<table width="80%" height="380px" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+		<tr>
+			<td style="align: center; width: 100%">
+				<table id="rcsrTable"> 
+				</table>
+			<td>			
+		</tr>
+	</table>
+	</div>	
+</div>
+<div id="errorDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText"></span></p>
+</div>	
+<div id="cannotMarkDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText">Cannot mark container as despatched without a container number</span></p>
+</div>	
+<div id="markContainerDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText">Cannot mark container as despatched until every module case has been loaded</span></p>
+</div>	
+<div id="despatchDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText">Container despatched successfully</span></p>
+</div>	
+<div id="undoContainerDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText">Undo container despatch successful</span></p>
+</div>
+<div id="rcsrDialogDiv" title="Record Container Shipping Result">
+	<p><span  id="DialogText"></span></p>
+</div>	
+</body>
+</html>
+

@@ -1,0 +1,59 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"
+	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"
+	type="text/css">
+
+<div>
+	<div class="main">
+		<h2>Shipping Schedule Maintenance</h2>
+		<table style="width: 100%; padding: 100px;">
+			<tr>
+				<td width="35%" />
+				<td>
+					<div id="serverResponse" class="response"
+						ng-show="data.message.length > 0">
+						Server Response: {{data.message}}<br /> <br />
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+
+					<table>
+						<tr>
+							<td width="30%">Import Company</td>
+							<td><select>
+									<option ng:repeat="m in importCompanies.returnedValues"
+										value="{{m.key}}" selected="selected">{{m.value}}</option>
+							</select></td>
+							<td></td>
+							<td width="30%">Export Company</td>
+							<td><select>
+									<option ng:repeat="m in exportCompanies.returnedValues"
+										value="{{m.key}}" selected="selected">{{m.value}}</option>
+							</select></td>
+						</tr>
+					</table>
+
+				</td>
+			</tr>
+		</table>
+		<br /> <br />
+
+		<div class="dataEntryPane">
+			<h4>Shipping Schedule Order Details</h4>
+		      <table width="100%" id="gridTableSchedule"> 
+		      </table>
+		<br />
+		<br />
+		</div>
+		<div class="dataEntryPane">
+			<h4>Ship Sailing Details</h4>
+		      <table id="gridTableSailings"> 
+		      </table>
+		</div>
+
+	</div>
+</div>

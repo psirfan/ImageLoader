@@ -1,0 +1,10 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+  
+  
+public interface Txoepn1Repository extends JpaRepository<Txoepn1, String> 
+{
+}

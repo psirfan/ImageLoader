@@ -1,0 +1,7 @@
+<div id="sidr">
+<ul>
+<li><a href="#">Home</a></li>
+<li class="active"><a href="#">Option 2</a></li>
+<li><a href="#">Option 3</a></li>
+</ul>
+</div>

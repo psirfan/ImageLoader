@@ -1,0 +1,151 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"type="text/css">
+
+<script language="javascript">
+
+</script>
+
+	<div ng-form name="addTraceabilityRecordForm" class="main" align="center" ng-controller="RecordPackController"  >
+		
+		<h2>Record Pack Result</h2>		
+		
+		<div id="topDiv">
+		
+			<span>Module Case Number</span>
+			
+			<span>
+	
+				<select id = "moduleCase" ng-model="moduleCaseSelected" style="align: left;"   ng-change="filterModuleCase()"  ng-options="c.value for c in moduleCases" />
+	
+			</span>
+			
+		</div>
+		
+		
+		<div id="bottomPart" style="margin-left: 250px; margin-top: 0px; float:left;	">
+
+			<div ng-repeat="comb in moduleCaseImpExpOrderItemShipCombination " style="margin-top: 60px; margin-bottom: 50px;"  >
+			
+			
+			
+				<table style="float: left;" border="1">	
+					<tr style="text-align: right;"  >
+						<!-- <td>{{$index}}</td> -->
+						<td style="background-color: blue;"></td>
+						<td width="160px" > Import Company </td> <td>{{comb.importCompany}}	 </td> 
+					 	<td width="160px" > Export Company </td> <td>{{comb.exportCompany}}	 </td>
+					 	<td width="160px" > Order Number	</td> <td>{{comb.orderNo}}	  </td>
+					 	<td width="160px" > Item Number	</td> <td>{{comb.itemNo}}	  </td>
+					 	<td width="160px" > Ship No	 	</td> <td>{{comb.shipmentNo}} </td>
+					 </tr>
+				 </table>	
+				 
+				 <!-- <div ng-repeat="i in getNumber(comb.packQty) track by $index"  style="clear:both; margin-left: 30px;" >	  -->
+
+				 <div ng-repeat="trc in comb.traceabilityRecordList " style="margin-top: 30px; margin-bottom: 50px; clear:both;"  >
+
+				 	<form name='addTraceabilityRecordForm' class="ng-pristine ng-invalid ng-invalid-required" novalidate>
+				 
+				 
+					 <table border="1" style="float:left; margin-left: 30px; margin-top: 10px;">
+					 	<!-- {{comb.unitType = 'ENG'}} -->
+					 	
+						<tr style="text-align: right;"  >
+						
+							<td>{{$index+1}} </td>
+							<td> Part Number        </td> <td>	<input type="text" class="textFieldReadOnly"  ng-model="comb.partNumber" maxlength="5" size="17" readonly="readonly" /> </td>
+						 	<td> Model  			</td> <td>	<input type="text" class="textFieldReadOnly"  ng-model="comb.dcmAlias" maxlength="5" size="3"  readonly="readonly" /> </td>
+						 	<td> Unit Type  		</td> <td>	<input type="text" class="textFieldReadOnly"  ng-model="comb.unitType" maxlength="5" size="3"  readonly="readonly" /> </td>
+						 	
+							<td ng-show="comb.unitType != 'ENG'">
+								Casting Number
+							</td>							
+							
+							<td ng-show="comb.unitType == 'ENG'">
+								Engine No (ENG)
+							</td>
+							
+							<td ng-show="comb.unitType != 'ENG'">
+								<input type="text" id="castingNumber_{{$parent.$index}}_{{$index}}" class="castingNumberClass" name="castingNumber"  ng-model="trc.castingNumber" maxlength="10" size="10" required />
+								<p id="castingNumberMessage_{{$parent.$index}}_{{$index}}" style="float:left;" class="help-block" ng-show="$index + 1 == comb.seq && addTraceabilityRecordForm.castingNumber.$invalid" >Please provide value</p>
+								<!-- <input type="hidden" id="castingNumberMessageHidden_{{$parent.$index}}_{{$index}}" value="false"> -->
+							</td>
+							
+							<td ng-show="comb.unitType == 'ENG'">
+								<input type="text"  ng-model="trc.engineNo" name="engineNo" maxlength="10" size="10" required />
+								<p style="float:left;" class="help-block" ng-show="$index + 1 == comb.seq && addTraceabilityRecordForm.engineNo.$invalid" >Please provide value</p>
+								
+							</td>
+							
+						
+							<td ng-show="comb.unitType != 'ENG'" width="125px" style="text-align: right;"  >
+								Machining Lot
+							</td>
+							
+							
+							<td ng-show="comb.unitType != 'ENG'">													
+								<input id="machiningLotDateString_{{$parent.$index}}_{{$index}}" name="machiningLotDateString" ng-model="trc.machiningLotDateString" ui-date ui-date-format="yymmdd" type="text"  maxlength="11" size="15"  ng-show=" $index + 1 == comb.seq" required />
+								<p id="machiningLotDateStringMessage_{{$parent.$index}}_{{$index}}" style="float:left;" class="help-block" ng-show="$index + 1 == comb.seq && addTraceabilityRecordForm.machiningLotDateString.$invalid " >Please provide value</p>								          
+							</td>				
+							
+							<td ng-show="comb.unitType != 'ENG'">
+								<input id="machiningLotSeq_{{$parent.$index}}_{{$index}}" type="text" ng-model="trc.machiningLotSeq" name="machiningLotSeq" maxlength="3" size="10" required />
+								<p id="machiningLotSeqMessage_{{$parent.$index}}_{{$index}}" style="float:left;" class="help-block" ng-show="$index + 1 == comb.seq && addTraceabilityRecordForm.machiningLotSeq.$invalid" >Please provide value</p>								
+							</td>
+							
+							
+							<td ng-show="comb.unitType == 'ENG'" width="125px" style="text-align: right;" >
+								Production Lot
+							</td>
+							
+							<td ng-show="comb.unitType == 'ENG'">
+								<input type="text"  ng-model="trc.productionLotNo" name="productionLotNo" maxlength="10" size="10" required />
+								<p style="float:left;" class="help-block" ng-show="$index + 1 == comb.seq && addTraceabilityRecordForm.productionLotNo.$invalid" >Please provide value</p>
+							</td>
+	
+						 	<td ng-show=" $index + 1 != comb.seq"> 
+						 		Date Packed	
+						 	</td> 
+						 	<td ng-show=" $index + 1 != comb.seq">
+						 		{{trc.datePackedString}}						 		 
+						 	</td>
+							 	
+							 	
+							<td>
+								<button class="button_disabled_{{$index + 1 != comb.seq}}" style="float: right; margin-right: 40px;" type="submit" 
+								ng-click="confirmPacked(comb.moduleCaseNumber, comb.importCompany , comb.exportCompany, comb.orderNo, comb.itemNo, comb.shipmentNo, $index +1 , comb.unitType, 
+								trc.castingNumber, trc.machiningLotDateString, trc.machiningLotSeq, comb.partNumber, comb.partColour, trc.engineNo , trc.productionLotNo, comb.packQty, $parent.$index)" 
+								 ng-disabled=" $index + 1 != comb.seq"	 >Confirm Packed</button> 
+							</td>
+							 	
+						 	<td>
+						 		<input type="button" style="color: red; font-weight: bold;" value="X" ng-click="deleteCurrentSeq(comb.moduleCaseNumber, comb.importCompany , comb.exportCompany, comb.orderNo, comb.itemNo, comb.shipmentNo, $index +1 , comb.unitType, 
+								trc.castingNumber, trc.machiningLotDateString, trc.machiningLotSeq, comb.partNumber, trc.engineNo , trc.productionLotNo, comb.packQty, $parent.$index)" ng-disabled=" trc.datePackedString == null" />
+						 	</td>
+					 								 	
+						</tr>
+					 </table>	
+					 
+					 </form>
+					 			 
+		 	</div>
+				 
+		</div>	
+		
+			<div style="margin: 80px;">
+					<a style="margin-left: 50px;"  class="button"  ng-show="moduleCaseNumberCurrent" href="/ReverseKDWebApp/service/caseMarkLabelPrinting?moduleNumber={{moduleCaseNumberCurrent}}&importCompany={{importCompanyCurrent}}&exportCompany={{exportCompanyCurrent}}">
+						Case Mark Label
+					</a>					
+					
+					<a style="margin-left: 50px;" class="button" ng-show="moduleCaseNumberCurrent"  href='/ReverseKDWebApp/service/caseContentPrinting?moduleNumber={{moduleCaseNumberCurrent}}&importCompany={{importCompanyCurrent}}&exportCompany={{exportCompanyCurrent}}'>
+						Case Content
+					</a>
+					
+					<a style="margin-left: 50px;" class="button" ng-show="moduleCaseNumberCurrent"  href='/ReverseKDWebApp/service/packingCheckSheetPrinting?moduleNumber={{moduleCaseNumberCurrent}}&importCompany={{importCompanyCurrent}}&exportCompany={{exportCompanyCurrent}}'>
+						Packing Check Sheet
+					</a>
+			</div>
+	</div>
+
+</div>

@@ -1,0 +1,82 @@
+package com.honda.eu.hum.reversekd.service;
+
+
+import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.honda.eu.hum.reversekd.bo.BookFinishedGoodsOffLine;
+import com.honda.eu.hum.reversekd.dao.Txoepn1Repository;
+import com.honda.eu.hum.reversekd.dao.Txosli1Repository;
+
+
+
+
+@Controller
+@EnableTransactionManagement  
+
+public class BookFinishedGoodsOffLineController {
+
+    private final AtomicLong counter = new AtomicLong();
+    
+    @Resource  
+	private Txoepn1Repository txoepn1Repository;
+    
+    @Resource  
+	private Txosli1Repository txosli1Repository;
+    
+    @Autowired
+    BookFinishedGoodsOffLine bookFinishedGoodsOffLine;
+   
+    @RequestMapping(value = "/bookFinishedGoodsOffLine",method = RequestMethod.POST)   
+    public @ResponseBody ServiceResponse bookFinishedGoodsOffLineController( 
+    				@RequestParam(value="partNumber", required=false, defaultValue="partNumber") String partNumber,
+    				@RequestParam(value="modeType", required=false, defaultValue="modeType") String modeType,
+    				@RequestParam(value="quantity", required=false, defaultValue="quantity") int quantity,
+    				@RequestParam(value="machiningLot", required=false, defaultValue="machiningLot") String machiningLot    				
+    				) {   	
+    
+
+   
+    ServiceResponse sr = new ServiceResponse();	   	
+ 
+    //Checking if part number exist or not 
+    if (!(bookFinishedGoodsOffLine.isExisitpartNumber(partNumber))){
+    	sr.setReturnCode(0);
+    	sr.setMessage("Part number not valid");
+    	return sr;
+    }
+    
+ 	
+  //Checking unit type 
+    if (bookFinishedGoodsOffLine.getUnitType(partNumber).equals("ENG")){
+    	if (!(modeType.equals("Engines"))){
+    		sr.setReturnCode(0);
+    		sr.setMessage("Part number invalid for this mode of the finished goods booking in application");
+    		return sr;
+    	}
+    }
+    
+  //Checking if furnished good is not enginesthan quantity should be greater than zero.	
+    if  (!(modeType.equals("Engines"))){
+    	if (quantity < 1){
+    		sr.setReturnCode(0);
+    		sr.setMessage("Quantity must be greater than zero");
+    		return sr;
+    	}    	
+    }    
+    			
+    bookFinishedGoodsOffLine.updateTXOSLI1(partNumber,modeType,machiningLot,quantity);
+    
+   	sr.setReturnCode(1);
+	sr.setMessage("SuccessFul");
+
+    return sr;
+    
+    }
+}

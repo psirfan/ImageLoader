@@ -1,0 +1,42 @@
+<html>
+<header>
+<script type="text/javascript">
+function onChangeFile(){
+	document.getElementById("fileRute").value = document.getElementById("file").value ;
+}
+</script> 
+</header>
+<body>
+	<form method="POST" enctype="multipart/form-data" action="http://localhost:8080/iloader/service/upload">
+	<div align="center"  style="padding-top: 150px;">
+		<table align="center" width="50%" cellpadding="5" cellspacing="0" style="border-width:1px 1px 1px 1px; font-size: 14px; color: #334B76; border: 1px #CCCCCC solid;">
+		    <tr>
+				<td>
+					Image File
+				</td>
+			</tr>
+			<tr>
+				<td>					
+					<input type="text" id="fileRute" style="text-align: left;" size="20" maxlength="20" > 
+					<input type="file" name="file" id = "file" accept="image/jpeg, image/png" size="20" onchange="onChangeFile();"><br />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="checkbox" name="filenamedefault" value="N">Default file name as alt_tag/Caption<br>
+				</td>
+				<td>
+				    <dl><dt value="1">Caption</dt><dt><input type="text" name="caption"></dt><dt>alt tag</dt><dt><input type="text" name="alttag"></dt></dl>
+					
+				</td>
+			</tr>			 
+		</table>
+		<table align="center" width="50%"> 
+			<tr> <td><input type="submit" value="Add another image"></td> </tr> 		
+			<tr align="right" height="100px;"> <td><input type="submit" value="upload"></td> </tr>  
+		</table>		
+		
+		</div>	
+	</form>
+</body>
+</html>

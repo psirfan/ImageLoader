@@ -1,0 +1,85 @@
+package com.honda.eu.hum.reversekd.dto;
+
+import java.util.Date;
+
+
+
+public class ShippinggeneratePlan {
+	
+	String vesselCode;
+	String vesselName;
+	String departureDate;
+	String portofDeparture;
+	String arrivalDate;
+	String portofArrival;
+	String shippingLine;
+	String importCompany;
+	String exportCompany;
+	int id;
+	
+	public String getVesselCode() {
+		return vesselCode;
+	}
+	public void setVesselCode(String vesselCode) {
+		this.vesselCode = vesselCode;
+	}	
+	public String getVesselName() {
+		return vesselName;
+	}
+	public void setVesselName(String vesselName) {
+		this.vesselName = vesselName;
+	}
+	public String getPortofDeparture() {
+		return portofDeparture;
+	}
+	public void setPortofDeparture(String portofDeparture) {
+		this.portofDeparture = portofDeparture;
+	}
+	
+	public String getPortofArrival() {
+		return portofArrival;
+	}
+	public void setPortofArrival(String portofArrival) {
+		this.portofArrival = portofArrival;
+	}
+	public String getShippingLine() {
+		return shippingLine;
+	}
+	public void setShippingLine(String shippingLine) {
+		this.shippingLine = shippingLine;
+	}
+	
+	
+	public String getDepartureDate() {
+		return departureDate;
+	}
+	public void setDepartureDate(String departureDate) {
+		this.departureDate = departureDate;
+	}
+	public String getArrivalDate() {
+		return arrivalDate;
+	}
+	public void setArrivalDate(String arrivalDate) {
+		this.arrivalDate = arrivalDate;
+	}
+	public String getImportCompany() {
+		return importCompany;
+	}
+	public void setImportCompany(String importCompany) {
+		this.importCompany = importCompany;
+	}
+	public String getExportCompany() {
+		return exportCompany;
+	}
+	public void setExportCompany(String exportCompany) {
+		this.exportCompany = exportCompany;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	
+}

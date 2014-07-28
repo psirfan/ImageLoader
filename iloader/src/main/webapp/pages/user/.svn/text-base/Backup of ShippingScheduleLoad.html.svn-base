@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"
+	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"
+	type="text/css">
+<script src="../../js/public/angular/angular-file-upload-shim.js"></script>
+<script src="../../js/public/angular/angular.min.js"></script>
+<script src="../../js/public/angular/angular-file-upload.js"></script>
+<script src="../../js/user/ShippingScheduleLoad.js"></script>
+<title>Shipping Schedule Load</title>
+</head>
+
+
+<body ng-app="fileUpload" ng-controller="MyCtrl">
+	<div class="main">
+		<h2>
+			Honda of the UK Manufacturing LTD</br> Power train export</br> Load shipping
+			Schedule
+		</h2>
+
+		<div id="upload-div" align="center">
+			<br /> <br />
+			<table style="width:100%;">
+				<tr>
+					<td style="width: 35%"></td>
+					<td style="width: 30%"><input type="file" name="files"
+						style="border: 1px solid;" ng-file-select="onFileSelect($files)" /></td>
+					<td>
+						<div ng-show="selectedFiles != null">
+							<div class="sel-file" ng-repeat="f in selectedFiles">
+								<img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
+								<button ng-click="start($index)" ng-show="progress[$index] < 0">Load</button>
+								<span class="progress" ng-show="progress[$index] >= 0">
+									<div style="width: {{progress[$index]">{{progress[$index]}}%</div>
+								</span>
+								<button ng-click="abort($index)"
+									ng-show="hasUploader($index) && progress[$index] < 100">Abort</button>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td />
+					<td>
+					<input type="checkbox" name="replace" ng-model="replace" ng-true-value="true" ng-false-value="false"/>Replace existing orders<br>
+					</td>
+				</tr>
+				<tr>
+					<td />
+					<td>
+						<div id="serverResponse" ng-show="data.message.length > 0" class="response">Server Response: {{data.message}}<br/><br/></div>
+					</td>
+				</tr>
+			</table>
+
+			<div id="messages">
+				<div ng-repeat="m in data.returnedValues track by $index">
+					{{m}}<br />
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

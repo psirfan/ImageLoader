@@ -1,0 +1,35 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dto.Table;
+  
+  
+public interface Tzzcnt1Repository extends JpaRepository<Tzzcnt1, Tzzcnt1Id> 
+{
+
+	@Query(value ="SELECT min(receipt_date) from ( "+
+				  "								SELECT	receipt_date,"+  
+				  "										integer(ROW_NUMBER() OVER (PARTITION BY xo_order_plant ORDER BY receipt_date desc)) AS ROWNUM, "+ 
+				  "										(SELECT INTEGER(SUBSTR(CONTROL_DATA,1,4)) Ndays "+
+				  "										 FROM   zz.tzzcnt1 "+
+				  "										 WHERE  SYSTEM_NAME = 'XO' "+
+				  "										 AND    CONTROL_NAME  = 'CASE_PACK_OFFSET') "+ 
+				  "								FROM XO.TXOCAL1 "+
+				  "								where xo_order_plant = :plantCode "+
+				  "								AND   receipt_date < :shipPackDate ) insidequery "+
+				  "	where insidequery.ROWNUM  <= insidequery.ndays" ,nativeQuery=true)
+	public String getCalculatedPlanpackDate(@Param("plantCode") char plantCode, @Param("shipPackDate") String shipPackDate);	
+	
+	@Query(value = "select control_name Key, control_data as Value from zz.Tzzcnt1 where system_name = 'CC' and control_name like 'PORT%'  order by control_data",nativeQuery=true)
+	public List<Table> findAllPortsOfDeparture();
+
+	@Query(value = "select control_name Key, control_data as Value from zz.Tzzcnt1 where system_name = 'CC' and control_name like 'PORT%'  order by control_data",nativeQuery=true)
+	public List<Table> findAllPortsOfArrival();
+
+
+}

@@ -1,0 +1,26 @@
+package com.honda.eu.hum.reversekd.dao;  
+
+import java.sql.Date;
+import java.sql.Timestamp;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;  
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honda.eu.hum.reversekd.dao.Txoecc1;
+  
+  
+public interface Txoest1Repository extends JpaRepository<Txoest1, Txoest1Id> 
+{
+
+	
+	//@Query(value = "select i from Txoest1 i where i.id.importCompany = ?1 and i.id.efectiveDate = ( select max(i.id.efectiveDate) from Txoest1 i where i.id.importCompany = ?1 and i.id.efectiveDate <=  ?2 ) ")
+	@Query(value = "select * from xo.Txoest1  where import_company = ?1 and efective_date = ( select max(efective_date) from xo.Txoest1 where import_company = ?1 and efective_date <=  ?2 ) ",nativeQuery = true)
+	Txoest1 findByEffective(String importCompany, Date d); 
+	//Txoest1 findByEffective(@Param("input") Txoest1Id id); 
+	//@Query(value = "select i from xo.Txoest1 where order_no = ?1 and ")
+	//Txoest1 findByEffective(Txoest1Id id);
+	
+}

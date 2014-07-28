@@ -1,0 +1,56 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet"
+	href="../../css/public/common.css">
+<LINK href="../../css/public/global.css" rel="stylesheet"
+	type="text/css">
+	
+
+<div>
+	<div class="main">
+		<h2>Create and download shipping plan</h2>
+		
+		<table style="width: 100%; padding: 100px;">
+			<tr>
+				<td width="35%" />
+				<td>
+					<div id="serverResponse" class="response" ng-show="data.message.length > 0">
+							Server Response: {{data.message}}
+					</div>
+				</td>
+			</tr>
+		</table>
+		<table width="70%" border="0" align="center" style="border-width:1px 1px 1px 1px;">
+			<tr>
+				<td>	
+					<label for="lblImportCompanies" style="align: left; width: 40%">Import Companies:</label>
+					<select id = "importCompaniesSelect" ng-model="importCompaniesSelect" style="align: left; width: 55%"   ng-change="filterCompany()"  ng-options="c.value for c in importcompanies"></select>
+				</td>
+				<td>
+					<label for="lblExportCompanies" style="align: right; width: 40%">Export Companies:</label>
+					<select  id="exportCompaniesSelect" ng-model="exportCompaniesSelect" style="align: right; width: 55%"  ng-change="filterCompany()" ng-options="c.value for c in exportcompanies"></select>	
+				</td>
+			</tr>	
+		</table>
+		<div class="dataEntryPane" align="center">
+			<h4>{{sailingsTitle}}</h4>
+			
+			<table width="100%" id="gridTableSailings">
+			
+			</table>
+			
+		</div>
+
+			<div align="center" style="margin: 50px;">		   
+			
+					<div align="center" style="margin: 30px; font-weight: bold; font-size: x-large;  cursor: hand;  ">
+						
+						<U><a ng-click="download()" ng-hide="filename == null" target="_self">Click to Download Ship Plan</a></U>
+			
+					</div>
+				  	<button ng-click="allocate()" style="margin-left: 5px;" class="button" >{{createRemoveButtonTitle}}</button>
+					
+					<button ng-click="showPlannedShipSailings()" style="margin-left: 5px;" class="button">{{showHideButtonTitle}}</button>
+					
+			</div>
+	</div>
+</div>
